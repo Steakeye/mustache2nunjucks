@@ -1,0 +1,26 @@
+{
+  "name": "mustache2nunjucks",
+  "version": "0.0.1",
+  "description": "CLI tool to convert Mustache templates to Nunjucks templates",
+  "main": "bin/index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Steakeye/mustache2nunjucks.git"
+  },
+  "keywords": [
+    "CLI",
+    "template",
+    "conversion",
+    "mustache",
+    "nunjucks"
+  ],
+  "author": "Andrew Keats",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Steakeye/mustache2nunjucks/issues"
+  },
+  "homepage": "https://github.com/Steakeye/mustache2nunjucks#readme"
+}
