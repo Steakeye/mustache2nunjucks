@@ -1,0 +1,54 @@
+<style type="text/css">
+.help-link::after, .help-link:visited::after {display:none;}
+a.help-link {text-decoration:underline; color:#005ea5;}
+i.arrow {color:#005ea5;}
+
+</style>
+
+
+{{<layout}}
+
+{{$pageTitle}}
+Confirm your bank account
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+<div class="inner-block">
+      <!--{{>includes/phase_banner}}-->
+    	{{>includes/iv_service_info}}
+ 	</div><!-- / .inner-block --> 
+
+ <!-- <p class="progress">Step 2 of 4</p> -->
+ <h1 class="heading-xlarge">Confirm your details</h1>
+ <p class="lede">Tell us the last 4 digits of the account where your <strong>UK State Pension</strong> is paid.</p>
+
+          <div class="form-group">
+          <fieldset>
+            <!-- <label class="form-label" for="name">Last 4 digits of your bank account<br /> -->
+              <input type="text" class="form-control form-control-1-8" name="bank_digits" id="bank_digits" value="" maxlength="4">
+              <!-- <input class="form-control" id="name" type="text" onblur="console.log($('#accountNumber'));console.log(this.value);$('#accountNumber').text(this.value);"> -->
+          </fieldset>
+        </div>
+
+        {{>includes/iv/find_account_number}} 
+        
+<br />
+<div class="form-group">
+        <br>
+        <a href="/pta/pta-home" class="next button" id="next-button">Continue</a>
+</div>
+
+{{>includes/iv/get_support}}
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

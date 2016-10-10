@@ -1,0 +1,54 @@
+{{<layout}}
+
+{{$pageTitle}}
+Session Timeout
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+<div class="inner-block">
+    	<div class="phase-banner">
+        <p>
+          <strong class="phase-tag">BETA</strong>
+          <span>This is a <a data-sso="false" target="_blank" href="https://www.gov.uk/help/beta">trial service</a>. Help us improve it - send your <a data-sso="false" target="_blank" href="/beta-feedback" id="feedback-link">feedback</a>.</span>
+        </p>
+      	</div><!-- / .phase-banner --> 
+    	{{>includes/iv_service_info}}
+ 	</div><!-- / .inner-block --> 
+
+<div id="content">
+
+	<article class="content__body grid-wrapper 	">
+
+	    <h1 class="heading-xlarge">Your session has ended due to inactivity</h1>
+
+        <p class="">Because you haven’t done anything for 20 minutes, your session has timed out. </p>
+        <p>We’ve deleted all the details you’ve entered to protect your privacy.</p>
+        <p>You’ll need to <a href="01_marriage_allowance_eligibility">start again.</a></p>
+
+
+</article>
+
+
+	<!-- <div class="report-error">
+	    <script type="text/javascript">var reportProblemAjaxUrl = "contact-frontend.service/contact/problem_reports_ajax?service=ma";</script>
+	    <a class="report-error__toggle js-visible" id="get-help-action" href="form-label">Get help with this page.</a>
+	    <a class="report-error__toggle js-hidden" href="contact-frontend.service/contact/problem_reports_nonjs?service=ma">Get help with this page.</a>
+	    <div id="report-error-partial-form" class="report-error__content hidden">
+	        <div class="report-error__loading"/>
+	    </div>
+	</div> -->
+
+</div>
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

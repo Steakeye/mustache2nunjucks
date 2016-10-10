@@ -1,0 +1,166 @@
+{{<layout}}
+
+{{$pageTitle}}
+Index
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+    <h1 class="heading-xlarge">Identity Verification (I.V.)</h1>
+
+    <p>This is the I.V prototype that sits in an end-to-end journey from a <em class="highlight">&lt;service&gt;</em> to
+        I.V. and back to <em class="highlight">&lt;service&gt;</em> again.</p>
+
+            <p>Access details and required field values can be found on the <a href="https://confluence.tools.tax.service.gov.uk/x/QAA-Ag">Prototypes page on Confluence</a></p>
+
+    <h2 class="heading-medium">Table of Contents</h2>
+    <h3 class="heading-small">Evidence select</h3>
+
+
+    <ul>
+        <li>
+            <a href="#evidence-select-one-question">Single evidence item and single question journey (CL100)</a>
+        </li>
+        <li>
+            <a href="#evidence-select-two-questions">Single evidence item and two question journey (CL200)</a>
+        </li>
+
+        <li>
+            <a href="#multi-choice">Two evidence items and two question journey (CL300)</a>
+        </li>
+
+        <h3 class="heading-small">No Evidence</h3>
+
+        <li>
+            <a href="#no-evidence">Credit record multi question journey (CL200)</a>
+        </li>
+        <!--  <li><a href="#questions-only">Questions Only</a></li>-->
+
+        <h3 class="heading-small">Integratation</h3>
+        <li>
+            <a href="#integrating-an-external-service">Integrating an external service</a>
+        </li>
+    </ul>
+
+    <hr/>
+
+    <div>
+        <h2 class="heading-large">Evidence select</h2>
+        <p>A user passing through I.V is asked questions based on information HMRC hold on them. They are given the choice of records and asked to choose one so HMRC knows what to ask them.</p>
+        <p>Once successful they are redirected to the service url that was passed to the I.V prototype.</p>
+
+    </div>
+    <div class="grid-row">
+        <div class="column-half-table">
+            <h3 class="heading-medium" id="evidence-select-one-question">Single evidence item and single question journey (CL100)</h3>
+
+            <p>A single question based on information HMRC hold on the user. </p>
+
+
+            <p>
+                <a href="/one_question/v1/confirm_identity" class="button button-get-started" role="button">One question journey</a>
+            </p>
+        </div>
+
+        <div class="column-half-table">
+           <h3 class="heading-medium" id="evidence-select-two-questions">Single evidence item and two question journey (CL200)</h3>
+
+            <p>Two questions based on information HMRC hold on the user. </p>
+            <p>Includes the designatory details page which may or may not be required by an individual service.</p>
+
+            <p>
+                <a href="/two_questions/v1/confirm_identity" class="button button-get-started" role="button">Two question journey</a>
+            </p>
+        </div>
+
+
+    </div>
+
+   <div class="grid-row">
+        <div class="column-half-table">
+            <h3 class="heading-medium" id="multi-choice">Two evidence items and two question journey (CL300)</h3>
+
+            <p>A user passing through I.V is asked to select two evidence options on which they will be asked a question on each based on information HMRC hold on them. </p>
+
+            <p>
+                <a href="/multi_questions/confirm_identity" class="button button-get-started" role="button">Two evidence items and two questions</a>
+            </p>
+        </div> 
+
+        <div class="column-half-table">
+
+        <!--   <h3 class="heading-large" id="questions-only">Questions Only</h3>
+
+            <p>A customer passing through I.V is required to answer two questions correctly. They can fail or skip
+                questions five times. </p>
+
+            <p>Once successful they are redirected to the service url that was passed to the I.V prototype. If failed
+                they are
+                asked to contact HMRC.</p>
+
+            <p>
+                <a href="/evidence_options/v1/designatory_details" class="button button-get-started" role="button">Questions Only Journey</a>
+            </p> -->
+
+        </div>
+
+    </div>
+
+<hr/>
+
+
+    <div>
+        <h2 class="heading-large">No evidence</h2>
+        <p>People without records stored in HMRC or HMPO and have asserted they have no UK passport are pushed to answer questions provided by a commercial credit verification company. If they pass all the questions returned they will be given CL200.</p>
+
+    
+
+    </div>
+    <div class="grid-row">
+        <div class="column-half-table">
+            <h3 class="heading-medium" id="no-evidence">Credit record multi question journey (CL200)</h3>
+
+            <p>Multiple questions based on information held by a commercial credit verification company</p>
+
+
+            <p>
+                <a href="/two_questions/v1/confirm_identity_credit" class="button button-get-started" role="button">Credit questions journey</a>
+            </p>
+        </div>
+
+        <div class="column-half-table">
+            <!-- empty column  -->
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+    <hr/>
+
+    <h3 class="heading-large" id="integrating-an-external-service">Integrating an external service</h3>
+
+    <p>The IV prototype can be "sandwiched" by another <em class="highlight">&lt;service&gt;</em> prototype by linking to an IV page and providing the query parameters <em class="highlight">url</em> and <em class="highlight">failUrl</em></p>
+
+    <h3 class="heading-medium">Example</h3>
+    <a href="http://iv-prototype.herokuapp.com/redirect/display-url?url=http://www.success-url.com&failUrl=http://www.fail-url.com">
+        http://iv-prototype.herokuapp.com/redirect/display-url?url=http://www.success-url.com&failUrl=http://www.fail-url.com
+    </a>
+
+    <h3 class="heading-medium">url and failUrl query params</h3>
+    For a technical explanation please refer to our <a href="https://github.tools.tax.service.gov.uk/HMRC/iv-prototype/blob/master/README.md">README.md</a>
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

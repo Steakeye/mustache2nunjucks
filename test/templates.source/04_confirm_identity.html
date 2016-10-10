@@ -1,0 +1,49 @@
+{{<layout}}
+
+<style>	
+.icon-important {float:left; }
+</style>
+
+
+{{$pageTitle}}
+Finding your records
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+
+<div class="inner-block">
+
+    <div class="inner-block">
+        <!--{{>includes/phase_banner}}-->
+      	{{>includes/iv_service_info}}
+   	</div>
+
+    <div id="content">
+
+        <article class="content__body grid-wrapper ">
+            <h1 class="heading-xlarge">Confirm your identity</h1>
+            <p>Before you continue, we need to check who you are.</p>
+            <p>We'll ask you some questions based on information HMRC hold on you.</p>
+
+
+            <a href="05_registration" id="verify" data-journey-click="marriage-allowance:click:triage-verify" class="button" >Continue</a>
+        </article>
+
+    </div>
+
+  {{>includes/get_support}}
+
+</div>
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

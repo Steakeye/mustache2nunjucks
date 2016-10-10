@@ -1,0 +1,63 @@
+<style type="text/css">
+.help-link::after, .help-link:visited::after {display:none;}
+a.help-link {text-decoration:underline; color:#005ea5;}
+i.arrow {color:#005ea5;}
+
+</style>
+
+
+{{<layout}}
+
+{{$pageTitle}}
+Confirm your P60 details
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+<div class="inner-block">
+      <!--{{>includes/phase_banner}}-->
+    	{{>includes/iv_service_info}}
+ 	</div><!-- / .inner-block --> 
+
+ <!-- <p class="progress">Step 2 of 4</p> -->
+ <h1 class="heading-xlarge">Confirm your pay details</h1>
+
+ <p class="lede">How much was your total pay for 2014/15?</p>
+
+          <div class="form-group">
+          <fieldset>
+            <!-- <label class="form-label" for="name">£<br /> -->
+              <span class="form-hint">Enter the exact amount, including pence. For example 2379.00</span>
+              <input type="text" class="form-control form-control-1-8" name="bank_digits" id="bank_digits" value="" maxlength="4">
+             <!-- <p class="small">Enter the exact amount, including pence. For example 2379.00</p> -->
+              <!-- <input class="form-control" id="name" type="text" onblur="console.log($('#accountNumber'));console.log(this.value);$('#accountNumber').text(this.value);"> -->
+          </fieldset>
+        </div>
+
+         <i class="arrow arrow-closed" aria-hidden="true">►</i>
+            <a href="#nomineeHelp" class="help-link"  onclick="$('#nomineeHelp').toggle();return false;">Where to find your pay details</a></label>
+            <small class="hidden-help" id="nomineeHelp">
+              <p>Your total pay is next to 'Total for year', near the top of your P60. </p>
+              <img width="400" src="/public/images/P60_400.png" alt="Bank Account last 4 digits">
+            </small>
+<br />
+
+<div class="form-groupl">
+        <br>
+        <a href="09_02_other_ways_failedMatching" class="next button" id="next-button">Continue</a>
+</div>
+
+{{>includes/get_support}}
+
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

@@ -1,0 +1,106 @@
+{{<layout}}
+
+{{$pageTitle}}
+Identity check
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+<div class="inner-block">
+      <!--{{>includes/phase_banner}}-->
+    	{{>includes/iv_service_info}}
+ 	</div><!-- / .inner-block --> 
+
+<article class="content__body grid-wrapper column-two-thirds">
+ <h1 class="heading-xlarge">Enter your details</h1>
+ <!-- <p class="lede">Provide your details to help us identify you.</p> -->
+
+
+<form method="post" action="route_via_record_check"  class="form" name="record_check">
+
+            <fieldset>
+
+                <div class="form-group client-validated">
+                  <label class="form-label">First name</label>
+                  <label for="fname" class="  ">  
+                 <!--  <span class="client-error-notification">First name is required </span> -->
+                  <input type="text" class="form-control" name="fname" id="fname" value="" >
+                  </label>
+                 </div>
+
+                  <div class="form-group client-validated">
+                  <label class="form-label">Last name</label>
+                  <label for="lname" class="  ">  
+                 <!--  <span class="client-error-notification">First name is required </span> -->
+                  <input type="text" class="form-control" name="lname" id="lname" value="" >
+                  </label>
+                 </div>
+
+                 <div class="form-group" >
+                   <label class="form-label" for="ni-number">
+                        National Insurance number
+                         <span class="form-hint">It’s on your National Insurance card, benefit letter, payslip or P60. </span>
+                         <span class="form-hint">For example QQ123456C</span>
+                        </label>
+                         <input class="form-control" id="ni-number" type="text">
+                 </div>
+
+                 <div class="form-group" >
+                      <legend>
+                        <span class="form-label">
+                          Date of birth
+                        </span>
+                      </legend>
+                      <div class="form-date">
+
+                        <p class="form-hint">For example, 31 3 1980</p>
+
+                        <div class="form-group form-group-day">
+                          <label for="dob-day">Day</label>
+                          <input class="form-control" id="dob-day" type="number" pattern="[0-9]*" min="0" max="31">
+                        </div>
+
+                        <div class="form-group form-group-month">
+                          <label for="dob-month">Month</label>
+                          <input class="form-control" id="dob-month" type="number" pattern="[0-9]*" min="0" max="12">
+                        </div>
+
+                        <div class="form-group form-group-year">
+                          <label for="dob-year">Year</label>
+                          <input class="form-control" id="dob-year" type="number" pattern="[0-9]*" min="0" max="2014">
+                        </div>
+                      </div>
+
+                 </div>
+
+
+
+              </fieldset>
+
+
+
+
+	     <div class="form-group">
+                <br>
+                <button class="button" type="submit">Continue</button>
+                <!-- <a href="06_finding_your_records" class="next button" id="next-button">Continue</a> -->
+       </div>
+</form>
+       {{>includes/get_support}}
+
+</article>
+
+
+
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

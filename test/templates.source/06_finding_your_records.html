@@ -1,0 +1,77 @@
+{{<layout}}
+
+{{$pageTitle}}
+Finding your records
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+
+    <div class="inner-block">
+        <!--{{>includes/phase_banner}}-->
+      	{{>includes/iv_service_info}}
+   	</div>
+
+
+  <article class="content__body grid-wrapper">
+
+    <h1 class="heading-xlarge">Finding your records</h1>
+
+
+    <p class="lede" >Choose a way of identifying you. We'll ask you a question based on your choice.</p>
+
+    <form method="get" action="/"  class="form">
+              <div class="form-group">
+                  <fieldset>
+
+                      <label for="checkbox-5" class="block-label"> I have my P60 for the last tax year (2014/15) 
+                        <input type="radio" id="checkbox-5" name="risk_triage_question" value="p60" >
+                      </label> 
+
+                      <label for="checkbox-1" class="block-label"> I know the account number which my tax credits are paid into
+                        <input type="radio" id="checkbox-1" name="risk_triage_question" value="tax_credits">
+                      </label>
+
+                      <label for="checkbox-2" class="block-label">I know the account number which my UK State Pension is paid into 
+                        <input type="radio" id="checkbox-2" name="risk_triage_question" value="state_pension">
+                      </label>
+         
+                      <label for="checkbox-3" class="block-label">I know the account number which my Child Benefit payments are paid into 
+                        <input type="radio" id="checkbox-3" name="risk_triage_question" value="child_benefit">
+                      </label>
+
+                      <label for="checkbox-4" class="block-label">I don’t have any of this information
+                        <input type="radio" id="checkbox-4" name="risk_triage_question" value="none">
+                      </label>  
+
+                  </fieldset>
+              </div>
+
+              <div class="form-group">
+                  <br>
+                  <button class="button" type="submit">Continue</button>
+                  <!-- <a href="07_confirm_bank_account" class="next button" id="next-button">Continue</a> -->
+              </div>
+    </form>
+
+  {{>includes/get_support}}
+
+  </article>
+
+
+
+
+
+
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

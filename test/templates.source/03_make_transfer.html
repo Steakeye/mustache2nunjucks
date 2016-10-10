@@ -1,0 +1,61 @@
+{{<layout}}
+
+{{$pageTitle}}
+Finding your records
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+<div class="inner-block">
+	<!--{{>includes/phase_banner}}-->
+    {{>includes/iv_service_info}}
+</div>
+
+<div id="content">
+
+	<article class="content__body grid-wrapper column-two-thirds">
+
+	    <h1 class="heading-xlarge">Who should make the transfer</h1>
+		<p>For Marriage Allowance to benefit you as a couple, the person making this transfer must be the lower earner and have an income of £10,600 or less (not including up to £5,000 of tax-free savings interest).</p>
+
+		<form method="POST" action="" class="form">
+			<div class="form-group inline ">
+			    <fieldset>
+			    	
+				      <legend class="bold-small"> Are you the lower earner in your relationship? </legend>
+
+				      <label for="checkbox-1" class="block-label">Yes
+				        <input type="radio" id="checkbox-1" name="eligibility-couple" value="dwp">
+				      </label>
+
+				      <label for="checkbox-2" class="block-label">No 
+				        <input type="radio" id="checkbox-2" name="eligibility-couple" value="dwp">
+				      </label>
+
+			    </fieldset>
+		  	</div>
+		</form>
+		
+		<p><a id="button-continue" class="button" role="button" href="04_confirm_identity">Continue</a></p>
+
+		<p><a href="04_confirm_identity" id="back">Back</a></p>
+
+
+		{{>includes/get_support}}
+
+	</article>
+
+ 
+</div>
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

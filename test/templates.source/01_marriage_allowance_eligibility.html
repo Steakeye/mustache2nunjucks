@@ -1,0 +1,141 @@
+{{<layout}}
+
+{{$pageTitle}}
+Finding your records
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+<div class="inner-block">
+      <!--{{>includes/phase_banner}}-->
+    	{{>includes/iv_service_info}}
+</div><!-- / .inner-block --> 
+
+<article class="content__body grid-wrapper column-two-thirds">
+    
+<h1 class="heading-xlarge">Check if you're eligible as a couple</h1>
+<p>To check your eligibility for Marriage Allowance, we'll need some information about you and your spouse or civil partner.</p>
+    
+
+<form method="POST" action="" class="form">
+
+        <div class="form-group inline ">
+
+            <fieldset>
+
+              <legend class="bold-small"> Are you married or in a legally registered <a id="civil-partnership" href="https://www.gov.uk/marriages-civil-partnerships/overview" rel="external">civil partnership</a>?</legend>
+
+              <label for="checkbox-1" class="block-label">Yes
+                <input type="radio" id="checkbox-1" name="eligibility-couple" value="dwp">
+              </label>
+
+              <label for="checkbox-2" class="block-label">No 
+                <input type="radio" id="checkbox-2" name="eligibility-couple" value="dwp">
+              </label>
+
+            </fieldset>
+          </div>
+  
+  </form>
+
+<!--
+<div class="tamc-js-hidden error-inline validation-summary" id="married-error">
+    You are not eligible for Marriage Allowance as you are not married or in a legally registered civil partnership.
+</div>
+-->
+
+
+<div class="form-group inline">
+
+        <div class="form-group inline ">
+
+            <fieldset>
+
+                <legend class="bold-small"> Were you both born on or after 6 April 1935?</legend>
+
+                <label for="checkbox-3" class="block-label">Yes
+                  <input type="radio" id="checkbox-3" name="eligibility-age" value="dwp">
+                </label>
+
+                <label for="checkbox-4" class="block-label">No 
+                  <input type="radio" id="checkbox-4" name="eligibility-age" value="dwp">
+                </label>
+
+
+
+            </fieldset>
+</div>
+
+<!--         <div class="tamc-js-hidden error-inline validation-summary" id="age-error"> You are not eligible for Marriage Allowance, but you may be eligible for <a id="married-couples" href="https://www.gov.uk/married-couples-allowance" rel="external">Married Couples Allowance</a>. </div> -->
+
+
+
+<form method="POST" action="" class="form">
+
+        <div class="form-group inline ">
+
+            <fieldset>
+
+              <legend class="bold-small">Does your spouse or civil partner have an annual income of between £10,601 and £42,385?</legend>
+
+              <label for="checkbox-5" class="block-label">Yes
+                <input type="radio" id="checkbox-5" name="eligibility-income" value="dwp">
+              </label>
+
+              <label for="checkbox-6" class="block-label">No 
+                <input type="radio" id="checkbox-6" name="eligibility-income" value="dwp">
+              </label>
+
+            </fieldset>
+          </div>
+  
+  </form>
+
+<!--         <div class="tamc-js-hidden error-inline validation-summary" id="income-error">
+            You are not eligible for Marriage Allowance. To be able to transfer your Personal Allowance to your spouse or civil partner they must have an annual income of between £10,601 and £42,385.
+        </div> -->
+
+
+<form method="POST" action="" class="form">
+
+        <div class="form-group inline ">
+
+            <fieldset>
+
+              <legend class="bold-small">Is your annual income £10,600 or less? (Not including up to £5,000 of tax-free savings interest)</legend>
+
+              <label for="checkbox-7" class="block-label">Yes
+                <input type="radio" id="checkbox-7" name="eligibility-couple" value="dwp">
+              </label>
+
+              <label for="checkbox-8" class="block-label">No 
+                <input type="radio" id="checkbox-8" name="eligibility-couple" value="dwp">
+              </label>
+
+            </fieldset>
+          </div>
+  
+  </form>
+
+        
+<p><a href="02_eligibility_true"><button class="button button-calculate" data-journey-click="marriage-allowance:click:advance-from-eligibility-questions" id="continue" type="submit">Continue</button></a></p>
+
+    
+</form>
+
+{{>includes/get_support}}
+
+</article>
+
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}

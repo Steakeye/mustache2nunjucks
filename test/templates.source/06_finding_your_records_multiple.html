@@ -1,0 +1,67 @@
+{{<layout}}
+
+{{$pageTitle}}
+Finding your records
+{{/pageTitle}}
+
+{{$content}}
+
+<main id="content" role="main">
+
+<div class="inner-block">
+    	<div class="phase-banner">
+        <p>
+          <strong class="phase-tag">BETA</strong>
+          <span>This is a <a data-sso="false" target="_blank" href="https://www.gov.uk/help/beta">trial service</a>. Help us improve it - send your <a data-sso="false" target="_blank" href="/beta-feedback" id="feedback-link">feedback</a>.</span>
+        </p>
+      	</div><!-- / .phase-banner --> 
+    	{{>includes/iv_service_info}}
+ 	</div><!-- / .inner-block --> 
+
+ <h1 class="heading-xlarge">Finding your records</h1>
+ <p class="lede">Select the options that apply to you, to help us confirm who you are.</p>
+
+
+<form method="POST" action="/accountsapprove" class="form">
+
+          <div class="form-group">
+            <fieldset>
+            	<label class="block-label" for="checkbox-1">
+                  <input id="checkbox-1" class="not-yets" type="checkbox" value="waste-animal" onclick="$('#next-button').attr('href', '/stuff.html'); $('#none').prop('checked', false); $('#ineligible-orgs').hide().invisible();">
+                 I receive tax credits
+                </label>
+                <label class="block-label" for="checkbox-2">
+                  <input id="checkbox-2" class="not-yets" type="checkbox" value="waste-mines" onclick="$('#next-button').attr('href', '/'); $('#none').prop('checked', false); $('#ineligible-orgs').hide().invisible();">
+                  I have my P60 for the last tax year (2014/15)
+                </label>
+                <label class="block-label" for="checkbox-3">
+                  <input id="checkbox-3" class="not-yets" type="checkbox" value="farm-agricultural" onclick="$('#next-button').attr('href', '/'); $('#none').prop('checked', false); $('#ineligible-orgs').hide().invisible();">
+                  I receive a UK state pension into a bank account
+                </label>
+                <label class="block-label" for="checkbox-4">
+                  <input id="checkbox-4" class="not-yets" type="checkbox" value="farm-agricultural" onclick="$('#next-button').attr('href', '/'); $('#none').prop('checked', false); $('#ineligible-orgs').hide().invisible();">
+                  I receive child benefit payments into a bank account
+                </label>
+              </fieldset>
+          </div>
+</form>
+
+<a href="#">None of the above apply to me </a>
+<br />
+
+
+	<div class="form-group">
+                <br>
+                <a href="#" class="next button" id="next-button">Continue</a>
+       </div>
+
+
+</main>
+
+{{/content}}
+
+{{$bodyEnd}}
+{{>includes/scripts}}
+{{/bodyEnd}}
+
+{{/layout}}
