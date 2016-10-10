@@ -1,5 +1,5 @@
-/// <reference path="../node_modules/commander/index.js" />
-
+#!/usr/bin/env node
+/// <reference path="../typings/index.d.ts" />
 
 /**
  * Created by steakeye on 06/10/16.
@@ -7,7 +7,7 @@
 import fs = require('fs');
 import through = require('through');
 import cliArgs = require('commander');
-import filesCopier = require('copyfiles');
+//import filesCopier = require('copyfiles');
 
 var files = process.argv.slice(2);
 
@@ -15,7 +15,7 @@ files.forEach(function (file) {
     var inStream = fs.createReadStream(file);
     var outStream = fs.createWriteStream(file + '.js');
 
-    outStream.write('module.exports = \'');
+    outStream.write('module.exports = \'');n
 
     inStream.pipe(through(function (buf) {
         this.queue((buf + '').replace(/'/g, '\\\'').replace(/\r\n|\r|\n/g, '\\n'));
@@ -30,6 +30,8 @@ cliArgs.version('0.0.1')
     .option('-o, --output', 'TODO')
     .parse(process.argv);
 
-function ConvertFiles() {}
+function ConvertFiles() {
+    console.log("CWD:", process.cwd())
+}
 
-ConvertFiles()
+ConvertFiles();

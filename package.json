@@ -4,7 +4,8 @@
   "description": "CLI tool to convert Mustache templates to Nunjucks templates",
   "main": "bin/index.js",
   "scripts": {
-    "build:ts": "tsc src/index -outDir bing --module amd",
+    "build:ts": "tsc",
+    "start": "node ./bin/index.js",
     "test": "mocha test"
   },
   "repository": {
@@ -31,6 +32,7 @@
     "typescript": "^2.0.3"
   },
   "dependencies": {
-    "copyfiles": "^1.0.0"
+    "copyfiles": "^1.0.0",
+    "through": "^2.3.8"
   }
 }
