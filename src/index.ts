@@ -9,16 +9,23 @@ import through = require('through');
 import cliArgs = require('commander');
 //import filesCopier = require('copyfiles');
 
-var files = process.argv.slice(2);
 let source:string = process.cwd();
 let target:string = source
 
 function setSource(aPath:string) {
-    source = aPath
+    if(source = aPath) {
+
+    }
+    return aPath;
 }
 function setTarget(aPath:string) {
     target = aPath
+    return aPath;
 }
+function processOptions(aOptions:commander.IExportedCommand) {
+    console.log('processOptions: ', aOptions)
+}
+
 /*files.forEach(function (file) {
     var inStream = fs.createReadStream(file);
     var outStream = fs.createWriteStream(file + '.js');
@@ -34,14 +41,22 @@ function setTarget(aPath:string) {
 
 //Set up the CLI interface then process the arguments in order to get the data/instructions
 cliArgs.version('0.0.1')
-    .option('-s, --source [path]', 'Directory or file to convert', setSource)
-    .option('-o, --output [path]', 'Location to save converted file(s)', setTarget)
+    .command('')
+    .option('-s, --source [path]', 'Directory or file to convert', undefined, source)
+    .option('-o, --output [path]', 'Location to save converted file(s)', undefined)
     .parse(process.argv);
 
 function ConvertFiles() {
+    let commands = (<any>cliArgs).commands[0];
     console.log("source:", source)
     console.log("target:", target)
-    console.log("files?:", files)
+    /*processOptions(cliArgs)*/
+    /*processOptions((<any>cliArgs).options)
+    processOptions((<any>cliArgs).commands)
+    processOptions((<any>cliArgs).source)
+    processOptions((<any>cliArgs).output)*/
+    processOptions(commands.source)
+    processOptions(commands.output)
 }
 
 ConvertFiles();
