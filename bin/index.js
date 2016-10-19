@@ -8,22 +8,34 @@
     }
 })(function (require, exports) {
     "use strict";
+    var fs = require('fs');
+    var path = require('path');
     var cliArgs = require('commander');
-    //import filesCopier = require('copyfiles');
-    var source = process.cwd();
-    var target = source;
-    function setSource(aPath) {
-        if (source = aPath) {
+    /*
+    function setSource(aPath:string) {
+        if(source = aPath) {
+    
         }
         return aPath;
     }
-    function setTarget(aPath) {
-        target = aPath;
+    function setTarget(aPath:string) {
+        target = aPath
         return aPath;
     }
+    */
     function processOptions(aOptions) {
         console.log('processOptions: ', aOptions);
     }
+    var M2NService = (function () {
+        function M2NService(sourcePath, outputPath) {
+            if (sourcePath === void 0) { sourcePath = process.cwd(); }
+            console.log("M2NService");
+            console.log(arguments);
+            this.sourcePath = sourcePath;
+            this.outputPath = outputPath;
+        }
+        return M2NService;
+    }());
     /*files.forEach(function (file) {
         var inStream = fs.createReadStream(file);
         var outStream = fs.createWriteStream(file + '.js');
@@ -38,21 +50,16 @@
     });*/
     //Set up the CLI interface then process the arguments in order to get the data/instructions
     cliArgs.version('0.0.1')
-        .command('')
-        .option('-s, --source [path]', 'Directory or file to convert', undefined, source)
-        .option('-o, --output [path]', 'Location to save converted file(s)', undefined)
+        .option('-s, --source [path]', 'Directory or file to convert', process.cwd())
+        .option('-o, --output [path]', 'Location to save converted file(s)')
         .parse(process.argv);
     function ConvertFiles() {
         var commands = cliArgs.commands[0];
-        console.log("source:", source);
-        console.log("target:", target);
-        /*processOptions(cliArgs)*/
-        /*processOptions((<any>cliArgs).options)
-        processOptions((<any>cliArgs).commands)
-        processOptions((<any>cliArgs).source)
-        processOptions((<any>cliArgs).output)*/
+        console.log("source:", cliArgs.source);
+        console.log("output:", cliArgs.output);
         processOptions(commands.source);
         processOptions(commands.output);
+        var m2nService = new M2NService(commands.source, commands.output);
     }
     ConvertFiles();
 });
