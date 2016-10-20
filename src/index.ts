@@ -10,22 +10,8 @@ const path = require('path');
 
 import through = require('through');
 import cliArgs = require('commander');
-//import filesCopier = require('copyfiles');
 import FileConverter = require('./m2n/FileConverter');
 
-
-/*
-function setSource(aPath:string) {
-    if(source = aPath) {
-
-    }
-    return aPath;
-}
-function setTarget(aPath:string) {
-    target = aPath
-    return aPath;
-}
-*/
 function processOptions(aOptions: commander.IExportedCommand) {
     console.log('processOptions: ', aOptions)
 }
@@ -51,6 +37,18 @@ class M2NService {
         }
         this.setOutputType();
 
+    }
+
+    public convertFiles(): void {
+        let fileConverter: FileConverter;
+
+        if (this.outputType === OutputType.FILE) {
+            //Just use the file converter on one source
+            fileConverter = new FileConverter(this.sourcePath, this.outputPath)
+            fileConverter.convert();
+        } else {
+            //Iterate the
+        }
     }
 
     private sourcePath:string;
@@ -93,7 +91,7 @@ class M2NService {
     }
 
     private validatePath(aPath: string) : void {
-        let pathExists: boolean = fs.existsSync(aPath)
+        let pathExists: boolean = fs.existsSync(aPath);
 
         if(!pathExists) {
             this.exitWithError(M2NService.PATH_NOT_FOUND);
@@ -111,18 +109,7 @@ class M2NService {
 
 }
 
-/*files.forEach(function (file) {
-    var inStream = fs.createReadStream(file);
-    var outStream = fs.createWriteStream(file + '.js');
 
-    outStream.write('module.exports = \'');
-
-    inStream.pipe(through(function (buf) {
-        this.queue((buf + '').replace(/'/g, '\\\'').replace(/\r\n|\r|\n/g, '\\n'));
-    }, function () {
-        this.queue('\';');
-    })).pipe(outStream);
-});*/
 
 //Set up the CLI interface then process the arguments in order to get the data/instructions
 cliArgs.version('0.0.1')
@@ -132,6 +119,8 @@ cliArgs.version('0.0.1')
 
 function ConvertFiles() {
     let m2nService = new M2NService((<any>cliArgs).source, (<any>cliArgs).output);
+
+    m2nService.convertFiles();
 }
 
 ConvertFiles();

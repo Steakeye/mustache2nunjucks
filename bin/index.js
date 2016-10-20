@@ -4,7 +4,7 @@
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", 'commander'], factory);
+        define(["require", "exports", 'commander', './m2n/FileConverter'], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -14,6 +14,8 @@
     var fs = require('fs');
     var path = require('path');
     var cliArgs = require('commander');
+    //import filesCopier = require('copyfiles');
+    var FileConverter = require('./m2n/FileConverter');
     /*
     function setSource(aPath:string) {
         if(source = aPath) {
@@ -49,6 +51,16 @@
             }
             this.setOutputType();
         }
+        M2NService.prototype.convertFiles = function () {
+            var fileConverter;
+            if (this.outputType === OutputType.FILE) {
+                //Just use the file converter on one source
+                fileConverter = new FileConverter(this.sourcePath, this.outputPath);
+                fileConverter.convert();
+            }
+            else {
+            }
+        };
         /*    private sanityCheckPaths(aSourcePath: string, aTargetPath: string): boolean {
                 let tCheckPassed = false;
         
@@ -93,18 +105,6 @@
         M2NService.PATH_NOT_FOUND = "Source path not found";
         return M2NService;
     }());
-    /*files.forEach(function (file) {
-        var inStream = fs.createReadStream(file);
-        var outStream = fs.createWriteStream(file + '.js');
-    
-        outStream.write('module.exports = \'');
-    
-        inStream.pipe(through(function (buf) {
-            this.queue((buf + '').replace(/'/g, '\\\'').replace(/\r\n|\r|\n/g, '\\n'));
-        }, function () {
-            this.queue('\';');
-        })).pipe(outStream);
-    });*/
     //Set up the CLI interface then process the arguments in order to get the data/instructions
     cliArgs.version('0.0.1')
         .option('-s, --source [path]', 'Directory or file to convert', process.cwd())
@@ -112,6 +112,7 @@
         .parse(process.argv);
     function ConvertFiles() {
         var m2nService = new M2NService(cliArgs.source, cliArgs.output);
+        m2nService.convertFiles();
     }
     ConvertFiles();
 });
