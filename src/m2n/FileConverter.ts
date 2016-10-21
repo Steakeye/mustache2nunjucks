@@ -17,10 +17,10 @@ module m2n {
     export class FileConverter {
         private static CONVERSION_MAP: ConversionMap = {
             layouts: { from: /{{<layouts(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
-            blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/(\w+)}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
+            blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
             incliudes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
-            ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
-            ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
+            ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
+            ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
         };
 
         constructor(aSource: string, aTarget: string) {

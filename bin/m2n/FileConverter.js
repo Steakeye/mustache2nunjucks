@@ -49,7 +49,7 @@
             };
             FileConverter.CONVERSION_MAP = {
                 layouts: { from: /{{<layouts(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
-                blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/(\w+)}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
+                blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
                 incliudes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
                 ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
                 ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
