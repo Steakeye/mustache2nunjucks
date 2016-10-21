@@ -14,20 +14,7 @@
     var fs = require('fs');
     var path = require('path');
     var cliArgs = require('commander');
-    //import filesCopier = require('copyfiles');
     var FileConverter = require('./m2n/FileConverter');
-    /*
-    function setSource(aPath:string) {
-        if(source = aPath) {
-    
-        }
-        return aPath;
-    }
-    function setTarget(aPath:string) {
-        target = aPath
-        return aPath;
-    }
-    */
     function processOptions(aOptions) {
         console.log('processOptions: ', aOptions);
     }

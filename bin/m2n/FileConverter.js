@@ -24,17 +24,35 @@
                 this.target = aTarget;
             };
             FileConverter.prototype.convert = function () {
-                var inStream = fs.createReadStream(this.source), outStream = fs.createWriteStream(this.target), transformStream = this.createTransformStream();
-                inStream.pipe(transformStream).pipe(outStream);
+                console.info('Converting: ', this.source);
+                var inStream = fs.createReadStream(this.source), 
+                //outStream: fs.WriteStream = fs.createWriteStream(this.target),
+                transformStream = this.createTransformStream();
+                //inStream.pipe(transformStream).pipe(outStream);
+                inStream.pipe(transformStream);
             };
             FileConverter.prototype.createTransformStream = function () {
+                var converter = this;
                 function writeAction(aBuffer) {
-                    this.queue((aBuffer + '').replace(/'/g, '\\\'').replace(/\r\n|\r|\n/g, '\\n'));
+                    var conversion, conversionMap = FileConverter.CONVERSION_MAP, convertedText = aBuffer.toString();
+                    for (conversion in conversionMap) {
+                        var conversionPair = conversionMap[conversion];
+                        console.log('conversion: ', conversion);
+                        convertedText = convertedText.replace(conversionPair.from, conversionPair.to);
+                    }
+                    this.queue(convertedText);
                 }
                 function endAction() {
-                    this.queue('\';');
+                    console.info('Conversion complete for: ', converter.source);
                 }
                 return through(writeAction, endAction);
+            };
+            FileConverter.CONVERSION_MAP = {
+                layouts: { from: /{{<layouts(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
+                blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/(\w+)}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
+                incliudes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
+                ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
+                ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
             };
             return FileConverter;
         }());
