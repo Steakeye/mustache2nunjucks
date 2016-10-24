@@ -16,9 +16,10 @@ module m2n {
 
     export class FileConverter {
         private static CONVERSION_MAP: ConversionMap = {
+            //TODO: fix this? What do we need to know?
             layouts: { from: /{{<layouts(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
             blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
-            incliudes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
+            includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
             ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
             ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
         };
@@ -34,12 +35,64 @@ module m2n {
 
         public convert(): void {
             console.info('Converting: ', this.source)
-            let inStream: fs.ReadStream = fs.createReadStream(this.source),
-            //outStream: fs.WriteStream = fs.createWriteStream(this.target),
-            transformStream = this.createTransformStream();
+
+            if (this.isTargetSameAsSource()) {
+                this.convertToSource();
+            } else {
+                this.convertToTarget();
+            }
+
+        }
+
+        private isTargetSameAsSource(): boolean {
+            return this.source == this.target
+        }
+
+        private convertToSource() : void {
+            let inStream: fs.ReadStream = fs.createReadStream(this.source, { flags: 'r+', autoClose: false }/*{ autoClose: false, flags: 'r+' }*/),
+                outStream: fs.WriteStream, // = fs.createWriteStream(this.target, ),
+                //transformStream: through.ThroughStream = this.createTransformStream();
+                transformStream: through.ThroughStream = inStream.pipe(this.createTransformStream());
 
             //inStream.pipe(transformStream).pipe(outStream);
-            inStream.pipe(transformStream);
+            inStream.on('open', (aFileDescriptor: number) => {
+                outStream = this.createOutputStream(aFileDescriptor);
+                //inStream.pipe(transformStream).pipe(outStream);
+                transformStream.pipe(outStream);
+            });
+            inStream.on('data', (aChunk: string) => {
+                console.log('onData: ', aChunk);
+            });
+            inStream.on('end', () => {
+                console.log('inStream.onEnd');
+            });
+        }
+
+        private convertToTarget() : void {
+            let inStream: fs.ReadStream = fs.createReadStream(this.source),
+                outStream: fs.WriteStream = fs.createWriteStream(this.target),
+                transformStream = this.createTransformStream();
+
+            inStream.pipe(transformStream).pipe(outStream);
+            //inStream.pipe(transformStream);
+        }
+
+        private createOutputStream(aFileDescriptor: number): fs.WriteStream {
+            let outStream = fs.createWriteStream(this.target, { fd: aFileDescriptor });
+
+            outStream.on('open', (aDat: any) => {
+                console.log('outStream.data');
+            });
+
+            outStream.on('data', (aDat: any) => {
+                console.log('outStream.data');
+            });
+
+            outStream.on('end', () => {
+                console.log('outStream.onEnd');
+            });
+
+            return outStream;
         }
 
         private createTransformStream(): through.ThroughStream {
