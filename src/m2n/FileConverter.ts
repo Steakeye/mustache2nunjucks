@@ -49,7 +49,7 @@ module m2n {
         }
 
         private convertToSource() : void {
-            let inStream: fs.ReadStream = fs.createReadStream(this.source, { autoClose: false, flags: 'r+' }),
+            let inStream: fs.ReadStream = fs.createReadStream(this.source),
                 outStream: fs.WriteStream, // = fs.createWriteStream(this.target, ),
                 //transformStream: through.ThroughStream = this.createTransformStream();,
                 data: string[] = [],
@@ -58,18 +58,19 @@ module m2n {
             //inStream.pipe(transformStream).pipe(outStream);
             inStream.on('open', (aFileDescriptor: number) => {
                 console.log('inStream.onOpen: ', aFileDescriptor);
-                outStream = this.createOutputStream(aFileDescriptor);
+                //outStream = this.createOutputStream(aFileDescriptor);
                 //inStream.pipe(transformStream).pipe(outStream);
-                transformStream.pipe(outStream);
+                //transformStream.pipe(outStream);
             });
             inStream.on('data', (aChunk: string) => {
                 console.log('inStream.onData: ', aChunk);
             });
             inStream.on('end', () => {
                 console.log('inStream.onEnd');
-                /*outStream.write(data.join(''), function() {
+                let outStream = this.createOutputStream();
+                outStream.write(data.join(''), function() {
                     console.log('outStream.write, what happened?: ', arguments)
-                });*/
+                });
             });
         }
 
@@ -82,8 +83,8 @@ module m2n {
             //inStream.pipe(transformStream);
         }
 
-        private createOutputStream(aFileDescriptor: number): fs.WriteStream {
-            let outStream = fs.createWriteStream(this.target, { fd: aFileDescriptor });
+        private createOutputStream(aFileDescriptor?: number): fs.WriteStream {
+            let outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor }: undefined);
 
             outStream.on('open', (aDat: any) => {
                 console.log('outStream.data');
