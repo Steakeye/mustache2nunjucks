@@ -49,22 +49,27 @@ module m2n {
         }
 
         private convertToSource() : void {
-            let inStream: fs.ReadStream = fs.createReadStream(this.source, { flags: 'r+', autoClose: false }/*{ autoClose: false, flags: 'r+' }*/),
+            let inStream: fs.ReadStream = fs.createReadStream(this.source, { autoClose: false, flags: 'r+' }),
                 outStream: fs.WriteStream, // = fs.createWriteStream(this.target, ),
-                //transformStream: through.ThroughStream = this.createTransformStream();
-                transformStream: through.ThroughStream = inStream.pipe(this.createTransformStream());
+                //transformStream: through.ThroughStream = this.createTransformStream();,
+                data: string[] = [],
+                transformStream: through.ThroughStream = inStream.pipe(this.createTransformStream(data));
 
             //inStream.pipe(transformStream).pipe(outStream);
             inStream.on('open', (aFileDescriptor: number) => {
+                console.log('inStream.onOpen: ', aFileDescriptor);
                 outStream = this.createOutputStream(aFileDescriptor);
                 //inStream.pipe(transformStream).pipe(outStream);
                 transformStream.pipe(outStream);
             });
             inStream.on('data', (aChunk: string) => {
-                console.log('onData: ', aChunk);
+                console.log('inStream.onData: ', aChunk);
             });
             inStream.on('end', () => {
                 console.log('inStream.onEnd');
+                /*outStream.write(data.join(''), function() {
+                    console.log('outStream.write, what happened?: ', arguments)
+                });*/
             });
         }
 
@@ -95,7 +100,7 @@ module m2n {
             return outStream;
         }
 
-        private createTransformStream(): through.ThroughStream {
+        private createTransformStream(aDataCache?: string []): through.ThroughStream {
             let converter: FileConverter = this;
 
             function writeAction(aBuffer) {
@@ -111,6 +116,7 @@ module m2n {
                 }
 
                 this.queue(convertedText);
+                aDataCache && aDataCache.push(convertedText)
             }
             function endAction() {
                 console.info('Conversion complete for: ', converter.source)
