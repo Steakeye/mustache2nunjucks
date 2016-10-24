@@ -28,8 +28,6 @@
             if (sourcePath === void 0) { sourcePath = process.cwd(); }
             console.log("M2NService");
             console.log(arguments);
-            var source = path.resolve(sourcePath);
-            var target = path.resolve(outputPath);
             if (!outputPath) {
                 this.assignSourceToBothPaths(sourcePath);
             }

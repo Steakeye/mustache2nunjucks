@@ -27,8 +27,6 @@ class M2NService {
     constructor(sourcePath: string = process.cwd(), outputPath?: string) {
         console.log("M2NService");
         console.log(arguments);
-        let source: string = path.resolve(sourcePath);
-        let target: string = path.resolve(outputPath);
 
         if (!outputPath) { //undefined or empty string
             this.assignSourceToBothPaths(sourcePath)
