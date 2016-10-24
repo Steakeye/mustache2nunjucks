@@ -25,13 +25,58 @@
             };
             FileConverter.prototype.convert = function () {
                 console.info('Converting: ', this.source);
-                var inStream = fs.createReadStream(this.source), 
-                //outStream: fs.WriteStream = fs.createWriteStream(this.target),
-                transformStream = this.createTransformStream();
-                //inStream.pipe(transformStream).pipe(outStream);
-                inStream.pipe(transformStream);
+                if (this.isTargetSameAsSource()) {
+                    this.convertToSource();
+                }
+                else {
+                    this.convertToTarget();
+                }
             };
-            FileConverter.prototype.createTransformStream = function () {
+            FileConverter.prototype.isTargetSameAsSource = function () {
+                return this.source == this.target;
+            };
+            FileConverter.prototype.convertToSource = function () {
+                var _this = this;
+                var inStream = fs.createReadStream(this.source), outStream, // = fs.createWriteStream(this.target, ),
+                //transformStream: through.ThroughStream = this.createTransformStream();,
+                data = [], transformStream = inStream.pipe(this.createTransformStream(data));
+                //inStream.pipe(transformStream).pipe(outStream);
+                inStream.on('open', function (aFileDescriptor) {
+                    console.log('inStream.onOpen: ', aFileDescriptor);
+                    //outStream = this.createOutputStream(aFileDescriptor);
+                    //inStream.pipe(transformStream).pipe(outStream);
+                    //transformStream.pipe(outStream);
+                });
+                inStream.on('data', function (aChunk) {
+                    console.log('inStream.onData: ', aChunk);
+                });
+                inStream.on('end', function () {
+                    console.log('inStream.onEnd');
+                    var outStream = _this.createOutputStream();
+                    outStream.write(data.join(''), function () {
+                        console.log('outStream.write, what happened?: ', arguments);
+                    });
+                });
+            };
+            FileConverter.prototype.convertToTarget = function () {
+                var inStream = fs.createReadStream(this.source), outStream = fs.createWriteStream(this.target), transformStream = this.createTransformStream();
+                inStream.pipe(transformStream).pipe(outStream);
+                //inStream.pipe(transformStream);
+            };
+            FileConverter.prototype.createOutputStream = function (aFileDescriptor) {
+                var outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor } : undefined);
+                outStream.on('open', function (aDat) {
+                    console.log('outStream.data');
+                });
+                outStream.on('data', function (aDat) {
+                    console.log('outStream.data');
+                });
+                outStream.on('end', function () {
+                    console.log('outStream.onEnd');
+                });
+                return outStream;
+            };
+            FileConverter.prototype.createTransformStream = function (aDataCache) {
                 var converter = this;
                 function writeAction(aBuffer) {
                     var conversion, conversionMap = FileConverter.CONVERSION_MAP, convertedText = aBuffer.toString();
@@ -41,6 +86,7 @@
                         convertedText = convertedText.replace(conversionPair.from, conversionPair.to);
                     }
                     this.queue(convertedText);
+                    aDataCache && aDataCache.push(convertedText);
                 }
                 function endAction() {
                     console.info('Conversion complete for: ', converter.source);
@@ -48,11 +94,12 @@
                 return through(writeAction, endAction);
             };
             FileConverter.CONVERSION_MAP = {
+                //TODO: fix this? What do we need to know?
                 layouts: { from: /{{<layouts(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
                 blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
-                incliudes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
-                ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
-                ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
+                includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
+                ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
+                ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
             };
             return FileConverter;
         }());
