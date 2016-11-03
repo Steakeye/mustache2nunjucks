@@ -46,6 +46,7 @@ class M2NService {
         } else {
             //Assume is directory
             //Get all the files in the direcgory
+            //Create mappings to desitnations
             //Iterate over list of files, converting one by one
 
         }
@@ -55,23 +56,6 @@ class M2NService {
     private outputPath:string;
     private outputType:OutputType
 
-
-/*    private sanityCheckPaths(aSourcePath: string, aTargetPath: string): boolean {
-        let tCheckPassed = false;
-
-        let sourceExt: string = path.parse(aSourcePath).ext;
-        let targetExt: string = path.parse(aTargetPath).ext;
-
-        if(targetExt.length && !sourceExt.length) {
-            //If the target is appears to be a file while the source isn't then we need to be prepared to through an error
-            //We need to check that the source is actually a file or that the t
-
-        } else {
-            tCheckPassed = true;
-        }
-
-        return tCheckPassed;
-    }*/
 
     private resolveAndAssignSource(aPath: string): string {
         let resolvedSource: string = path.resolve(aPath);
