@@ -8,9 +8,6 @@
     }
 })(function (require, exports) {
     "use strict";
-    /**
-     * Created by steakeye on 06/10/16.
-     */
     var fs = require('fs');
     var path = require('path');
     var cliArgs = require('commander');

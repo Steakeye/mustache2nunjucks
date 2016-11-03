@@ -7,11 +7,13 @@
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", 'fs', 'through'], factory);
+        define(["require", "exports", 'fs', 'path', 'mkdirp', 'through'], factory);
     }
 })(function (require, exports) {
     "use strict";
     var fs = require('fs');
+    var path = require('path');
+    var mkdirp = require('mkdirp');
     var through = require('through');
     var m2n;
     (function (m2n) {
@@ -19,6 +21,10 @@
             function FileConverter(aSource, aTarget) {
                 this.setSourceAndTarget(aSource, aTarget);
             }
+            FileConverter.exitWithError = function (aError) {
+                console.error(aError);
+                process.exit(1);
+            };
             FileConverter.prototype.setSourceAndTarget = function (aSource, aTarget) {
                 this.source = aSource;
                 this.target = aTarget;
@@ -33,19 +39,13 @@
                 }
             };
             FileConverter.prototype.isTargetSameAsSource = function () {
-                return this.source == this.target;
+                return this.source === this.target;
             };
             FileConverter.prototype.convertToSource = function () {
                 var _this = this;
-                var inStream = fs.createReadStream(this.source), outStream, // = fs.createWriteStream(this.target, ),
-                //transformStream: through.ThroughStream = this.createTransformStream();,
-                data = [], transformStream = inStream.pipe(this.createTransformStream(data));
-                //inStream.pipe(transformStream).pipe(outStream);
+                var inStream = fs.createReadStream(this.source), outStream, data = [], transformStream = inStream.pipe(this.createTransformStream(data));
                 inStream.on('open', function (aFileDescriptor) {
                     console.log('inStream.onOpen: ', aFileDescriptor);
-                    //outStream = this.createOutputStream(aFileDescriptor);
-                    //inStream.pipe(transformStream).pipe(outStream);
-                    //transformStream.pipe(outStream);
                 });
                 inStream.on('data', function (aChunk) {
                     console.log('inStream.onData: ', aChunk);
@@ -59,9 +59,55 @@
                 });
             };
             FileConverter.prototype.convertToTarget = function () {
-                var inStream = fs.createReadStream(this.source), outStream = fs.createWriteStream(this.target), transformStream = this.createTransformStream();
-                inStream.pipe(transformStream).pipe(outStream);
-                //inStream.pipe(transformStream);
+                var _this = this;
+                /*let inStream: fs.ReadStream = fs.createReadStream(this.source),
+                    outStream: fs.WriteStream,
+                    transformStream = this.createTransformStream(),
+                    outPath = ;
+    
+                mkdirp(outPath, (aError: Error) => {
+                    if (aError) {
+                        FileConverter.exitWithError(aError);
+                    } else {
+                        fs.stat(this.target, (aErr: Error, aStats: fs.Stats) => {
+                            if(aErr) {
+                                FileConverter.exitWithError(aErr);
+                            } else if (aStats.isDirectory()) {
+                                FileConverter.exitWithError(FileConverter.ERROR_MESSAGES.fileToDir);
+                            } else {
+    
+                            }
+                        });
+    
+                        outStream = fs.createWriteStream(this.target);
+                        inStream.pipe(transformStream).pipe(outStream);
+                    }
+                });*/
+                this.ensureValidTarget(function () {
+                    var inStream = fs.createReadStream(_this.source), transformStream = _this.createTransformStream(), outStream = fs.createWriteStream(_this.target);
+                    inStream.pipe(transformStream).pipe(outStream);
+                });
+            };
+            FileConverter.prototype.ensureValidTarget = function (aThen) {
+                var _this = this;
+                mkdirp(path.parse(this.target).dir, function (aError) {
+                    if (aError) {
+                        FileConverter.exitWithError(aError);
+                    }
+                    else {
+                        fs.stat(_this.target, function (aErr, aStats) {
+                            if (aErr) {
+                                FileConverter.exitWithError(aErr);
+                            }
+                            else if (aStats.isDirectory()) {
+                                FileConverter.exitWithError(FileConverter.ERROR_MESSAGES.fileToDir);
+                            }
+                            else {
+                                aThen();
+                            }
+                        });
+                    }
+                });
             };
             FileConverter.prototype.createOutputStream = function (aFileDescriptor) {
                 var outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor } : undefined);
@@ -100,6 +146,9 @@
                 includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
                 ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
                 ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
+            };
+            FileConverter.ERROR_MESSAGES = {
+                fileToDir: "Cannot convert file to directory"
             };
             return FileConverter;
         }());

@@ -4,6 +4,8 @@
  */
 
 import * as fs from 'fs';
+import * as path from 'path';
+import * as mkdirp from 'mkdirp';
 import * as through from 'through';
 
 module m2n {
@@ -24,6 +26,17 @@ module m2n {
             ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
         };
 
+        private static ERROR_MESSAGES: {
+            fileToDir: string;
+        } = {
+            fileToDir: "Cannot convert file to directory"
+        };
+
+        private static exitWithError(aError: string | Error): void {
+            console.error(aError)
+            process.exit(1);
+        }
+
         constructor(aSource: string, aTarget: string) {
             this.setSourceAndTarget(aSource, aTarget)
         }
@@ -34,7 +47,7 @@ module m2n {
         }
 
         public convert(): void {
-            console.info('Converting: ', this.source)
+            console.info('Converting: ', this.source, ' to ', this.target)
 
             if (this.isTargetSameAsSource()) {
                 this.convertToSource();
@@ -45,22 +58,17 @@ module m2n {
         }
 
         private isTargetSameAsSource(): boolean {
-            return this.source == this.target
+            return this.source === this.target
         }
 
         private convertToSource() : void {
             let inStream: fs.ReadStream = fs.createReadStream(this.source),
-                outStream: fs.WriteStream, // = fs.createWriteStream(this.target, ),
-                //transformStream: through.ThroughStream = this.createTransformStream();,
+                outStream: fs.WriteStream,
                 data: string[] = [],
                 transformStream: through.ThroughStream = inStream.pipe(this.createTransformStream(data));
 
-            //inStream.pipe(transformStream).pipe(outStream);
             inStream.on('open', (aFileDescriptor: number) => {
                 console.log('inStream.onOpen: ', aFileDescriptor);
-                //outStream = this.createOutputStream(aFileDescriptor);
-                //inStream.pipe(transformStream).pipe(outStream);
-                //transformStream.pipe(outStream);
             });
             inStream.on('data', (aChunk: string) => {
                 console.log('inStream.onData: ', aChunk);
@@ -75,12 +83,31 @@ module m2n {
         }
 
         private convertToTarget() : void {
-            let inStream: fs.ReadStream = fs.createReadStream(this.source),
-                outStream: fs.WriteStream = fs.createWriteStream(this.target),
-                transformStream = this.createTransformStream();
+            this.ensureValidTarget(() => {
+                let inStream: fs.ReadStream = fs.createReadStream(this.source),
+                    transformStream = this.createTransformStream(),
+                    outStream: fs.WriteStream = fs.createWriteStream(this.target);
 
-            inStream.pipe(transformStream).pipe(outStream);
-            //inStream.pipe(transformStream);
+                inStream.pipe(transformStream).pipe(outStream);
+            });
+        }
+
+        private ensureValidTarget(aThen: () => void): void {
+            mkdirp(path.parse(this.target).dir, (aError: Error) => {
+                if (aError) {
+                    FileConverter.exitWithError(aError);
+                } else {
+                    fs.stat(this.target, (aErr: Error, aStats: fs.Stats) => {
+                        if(aErr) {
+                            FileConverter.exitWithError(aErr);
+                        } else if (aStats.isDirectory()) {
+                            FileConverter.exitWithError(FileConverter.ERROR_MESSAGES.fileToDir);
+                        } else {
+                            aThen();
+                        }
+                    });
+                }
+            });
         }
 
         private createOutputStream(aFileDescriptor?: number): fs.WriteStream {

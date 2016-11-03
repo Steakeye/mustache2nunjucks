@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /// <reference path="../typings/index.d.ts" />
 
-import {ParsedPath} from "path";
 /**
  * Created by steakeye on 06/10/16.
  */
@@ -45,7 +44,10 @@ class M2NService {
             fileConverter = new FileConverter(this.sourcePath, this.outputPath)
             fileConverter.convert();
         } else {
-            //Iterate the
+            //Assume is directory
+            //Get all the files in the direcgory
+            //Iterate over list of files, converting one by one
+
         }
     }
 
