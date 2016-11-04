@@ -26,6 +26,12 @@ module m2n {
             ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
         };
 
+        private static NODE_ERRORS: {
+            enoent: number;
+        } = {
+            enoent: -2
+        };
+
         private static ERROR_MESSAGES: {
             fileToDir: string;
         } = {
@@ -98,17 +104,24 @@ module m2n {
                     FileConverter.exitWithError(aError);
                 } else {
                     fs.stat(this.target, (aErr: Error, aStats: fs.Stats) => {
-                        if(aErr) {
-                            FileConverter.exitWithError(aErr);
-                        } else if (aStats.isDirectory()) {
-                            FileConverter.exitWithError(FileConverter.ERROR_MESSAGES.fileToDir);
-                        } else {
+                        let errorMessage: (string | Error);
+
+                        if (aStats && aStats.isDirectory()) {
+                            errorMessage = FileConverter.ERROR_MESSAGES.fileToDir;
+                        } else if (aErr && (<any>aErr).errno !== FileConverter.NODE_ERRORS.enoent) {
+                            errorMessage = aErr;
+                        }
+
+                        if (errorMessage === undefined) {
                             aThen();
+                        } else {
+                            FileConverter.exitWithError(errorMessage);
                         }
                     });
                 }
             });
         }
+
 
         private createOutputStream(aFileDescriptor?: number): fs.WriteStream {
             let outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor }: undefined);

@@ -73,14 +73,18 @@
                     }
                     else {
                         fs.stat(_this.target, function (aErr, aStats) {
-                            if (aErr) {
-                                FileConverter.exitWithError(aErr);
+                            var errorMessage;
+                            if (aStats && aStats.isDirectory()) {
+                                errorMessage = FileConverter.ERROR_MESSAGES.fileToDir;
                             }
-                            else if (aStats.isDirectory()) {
-                                FileConverter.exitWithError(FileConverter.ERROR_MESSAGES.fileToDir);
+                            else if (aErr && aErr.errno !== FileConverter.NODE_ERRORS.enoent) {
+                                errorMessage = aErr;
+                            }
+                            if (errorMessage === undefined) {
+                                aThen();
                             }
                             else {
-                                aThen();
+                                FileConverter.exitWithError(errorMessage);
                             }
                         });
                     }
@@ -123,6 +127,9 @@
                 includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
                 ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
                 ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
+            };
+            FileConverter.NODE_ERRORS = {
+                enoent: -2
             };
             FileConverter.ERROR_MESSAGES = {
                 fileToDir: "Cannot convert file to directory"
