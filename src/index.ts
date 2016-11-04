@@ -1,19 +1,18 @@
 #!/usr/bin/env node
 /// <reference path="../typings/index.d.ts" />
+/// <reference path="m2n/PathMapper.ts" />
 
 /**
  * Created by steakeye on 06/10/16.
  */
 const fs = require('fs');
 const path = require('path');
-
 import through = require('through');
 import cliArgs = require('commander');
 import FileConverter = require('./m2n/FileConverter');
+import m2n = require('./m2n/PathMapper');
 
-function processOptions(aOptions: commander.IExportedCommand) {
-    console.log('processOptions: ', aOptions)
-}
+const PathMapper = m2n.PathMapper;
 
 enum OutputType {
     FILE,
@@ -37,18 +36,28 @@ class M2NService {
     }
 
     public convertFiles(): void {
-        let fileConverter: FileConverter;
+        let fileConverter: FileConverter,
+            pathMapper: m2n.PathMapper,
+            fileMappings: m2n.MappingPair[];
+
+        function convert(aFrom: string, aTo: string) {
+            fileConverter = new FileConverter(aFrom, aTo);
+            fileConverter.convert();
+        }
 
         if (this.outputType === OutputType.FILE) {
             //Just use the file converter on one source
-            fileConverter = new FileConverter(this.sourcePath, this.outputPath)
-            fileConverter.convert();
+            convert(this.sourcePath, this.outputPath);
         } else {
             //Assume is directory
-            //Get all the files in the direcgory
+            //Get all the files in the directory
+            pathMapper = new PathMapper(this.sourcePath, this.outputPath);
             //Create mappings to desitnations
+            fileMappings = pathMapper.generatePaths();
             //Iterate over list of files, converting one by one
-
+            fileMappings.forEach((aMapping: m2n.MappingPair) => {
+                convert(aMapping.from, aMapping.to);
+            });
         }
     }
 

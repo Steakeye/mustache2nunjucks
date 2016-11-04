@@ -114,7 +114,7 @@ module m2n {
             let outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor }: undefined);
 
             outStream.on('open', (aDat: any) => {
-                console.log('outStream.data');
+                console.log('outStream.open');
             });
 
             outStream.on('data', (aDat: any) => {

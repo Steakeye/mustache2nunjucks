@@ -4,7 +4,7 @@
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", 'commander', './m2n/FileConverter'], factory);
+        define(["require", "exports", 'commander', './m2n/FileConverter', './m2n/PathMapper'], factory);
     }
 })(function (require, exports) {
     "use strict";
@@ -12,9 +12,8 @@
     var path = require('path');
     var cliArgs = require('commander');
     var FileConverter = require('./m2n/FileConverter');
-    function processOptions(aOptions) {
-        console.log('processOptions: ', aOptions);
-    }
+    var m2n = require('./m2n/PathMapper');
+    var PathMapper = m2n.PathMapper;
     var OutputType;
     (function (OutputType) {
         OutputType[OutputType["FILE"] = 0] = "FILE";
@@ -34,31 +33,27 @@
             this.setOutputType();
         }
         M2NService.prototype.convertFiles = function () {
-            var fileConverter;
-            if (this.outputType === OutputType.FILE) {
-                //Just use the file converter on one source
-                fileConverter = new FileConverter(this.sourcePath, this.outputPath);
+            var fileConverter, pathMapper, fileMappings;
+            function convert(aFrom, aTo) {
+                fileConverter = new FileConverter(aFrom, aTo);
                 fileConverter.convert();
             }
+            if (this.outputType === OutputType.FILE) {
+                //Just use the file converter on one source
+                convert(this.sourcePath, this.outputPath);
+            }
             else {
+                //Assume is directory
+                //Get all the files in the directory
+                pathMapper = new PathMapper(this.sourcePath, this.outputPath);
+                //Create mappings to desitnations
+                fileMappings = pathMapper.generatePaths();
+                //Iterate over list of files, converting one by one
+                fileMappings.forEach(function (aMapping) {
+                    convert(aMapping.from, aMapping.to);
+                });
             }
         };
-        /*    private sanityCheckPaths(aSourcePath: string, aTargetPath: string): boolean {
-                let tCheckPassed = false;
-        
-                let sourceExt: string = path.parse(aSourcePath).ext;
-                let targetExt: string = path.parse(aTargetPath).ext;
-        
-                if(targetExt.length && !sourceExt.length) {
-                    //If the target is appears to be a file while the source isn't then we need to be prepared to through an error
-                    //We need to check that the source is actually a file or that the t
-        
-                } else {
-                    tCheckPassed = true;
-                }
-        
-                return tCheckPassed;
-            }*/
         M2NService.prototype.resolveAndAssignSource = function (aPath) {
             var resolvedSource = path.resolve(aPath);
             this.validatePath(resolvedSource);

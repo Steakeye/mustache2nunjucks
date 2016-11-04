@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "copyfiles": "^1.0.0",
+    "glob": "^7.1.1",
     "mkdirp": "^0.5.1",
     "through": "^2.3.8"
   }

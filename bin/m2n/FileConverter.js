@@ -30,7 +30,7 @@
                 this.target = aTarget;
             };
             FileConverter.prototype.convert = function () {
-                console.info('Converting: ', this.source);
+                console.info('Converting: ', this.source, ' to ', this.target);
                 if (this.isTargetSameAsSource()) {
                     this.convertToSource();
                 }
@@ -60,29 +60,6 @@
             };
             FileConverter.prototype.convertToTarget = function () {
                 var _this = this;
-                /*let inStream: fs.ReadStream = fs.createReadStream(this.source),
-                    outStream: fs.WriteStream,
-                    transformStream = this.createTransformStream(),
-                    outPath = ;
-    
-                mkdirp(outPath, (aError: Error) => {
-                    if (aError) {
-                        FileConverter.exitWithError(aError);
-                    } else {
-                        fs.stat(this.target, (aErr: Error, aStats: fs.Stats) => {
-                            if(aErr) {
-                                FileConverter.exitWithError(aErr);
-                            } else if (aStats.isDirectory()) {
-                                FileConverter.exitWithError(FileConverter.ERROR_MESSAGES.fileToDir);
-                            } else {
-    
-                            }
-                        });
-    
-                        outStream = fs.createWriteStream(this.target);
-                        inStream.pipe(transformStream).pipe(outStream);
-                    }
-                });*/
                 this.ensureValidTarget(function () {
                     var inStream = fs.createReadStream(_this.source), transformStream = _this.createTransformStream(), outStream = fs.createWriteStream(_this.target);
                     inStream.pipe(transformStream).pipe(outStream);
@@ -112,7 +89,7 @@
             FileConverter.prototype.createOutputStream = function (aFileDescriptor) {
                 var outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor } : undefined);
                 outStream.on('open', function (aDat) {
-                    console.log('outStream.data');
+                    console.log('outStream.open');
                 });
                 outStream.on('data', function (aDat) {
                     console.log('outStream.data');
