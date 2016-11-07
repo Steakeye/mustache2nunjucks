@@ -30,7 +30,7 @@
                 this.target = aTarget;
             };
             FileConverter.prototype.convert = function () {
-                console.info('Converting: ', this.source, ' to ', this.target);
+                console.info('Converting:', this.source, 'to', this.target);
                 if (this.isTargetSameAsSource()) {
                     this.convertToSource();
                 }
@@ -44,17 +44,17 @@
             FileConverter.prototype.convertToSource = function () {
                 var _this = this;
                 var inStream = fs.createReadStream(this.source), outStream, data = [], transformStream = inStream.pipe(this.createTransformStream(data));
-                inStream.on('open', function (aFileDescriptor) {
+                /*inStream.on('open', (aFileDescriptor: number) => {
                     console.log('inStream.onOpen: ', aFileDescriptor);
                 });
-                inStream.on('data', function (aChunk) {
+                inStream.on('data', (aChunk: string) => {
                     console.log('inStream.onData: ', aChunk);
-                });
+                });*/
                 inStream.on('end', function () {
-                    console.log('inStream.onEnd');
+                    //console.log('inStream.onEnd');
                     var outStream = _this.createOutputStream();
                     outStream.write(data.join(''), function () {
-                        console.log('outStream.write, what happened?: ', arguments);
+                        //console.log('outStream.write, what happened?: ', arguments)
                     });
                 });
             };
@@ -92,15 +92,17 @@
             };
             FileConverter.prototype.createOutputStream = function (aFileDescriptor) {
                 var outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor } : undefined);
-                outStream.on('open', function (aDat) {
+                /*outStream.on('open', (aDat: any) => {
                     console.log('outStream.open');
                 });
-                outStream.on('data', function (aDat) {
+    
+                outStream.on('data', (aDat: any) => {
                     console.log('outStream.data');
                 });
-                outStream.on('end', function () {
+    
+                outStream.on('end', () => {
                     console.log('outStream.onEnd');
-                });
+                });*/
                 return outStream;
             };
             FileConverter.prototype.createTransformStream = function (aDataCache) {
@@ -109,7 +111,7 @@
                     var conversion, conversionMap = FileConverter.CONVERSION_MAP, convertedText = aBuffer.toString();
                     for (conversion in conversionMap) {
                         var conversionPair = conversionMap[conversion];
-                        console.log('conversion: ', conversion);
+                        //console.log('conversion: ', conversion)
                         convertedText = convertedText.replace(conversionPair.from, conversionPair.to);
                     }
                     this.queue(convertedText);
@@ -121,8 +123,7 @@
                 return through(writeAction, endAction);
             };
             FileConverter.CONVERSION_MAP = {
-                //TODO: fix this? What do we need to know?
-                layouts: { from: /{{<layouts(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
+                layouts: { from: /{{<(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
                 blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
                 includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
                 ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
@@ -140,15 +141,3 @@
     })(m2n || (m2n = {}));
     return m2n.FileConverter;
 });
-/*files.forEach(function (file) {
- var inStream = fs.createReadStream(file);
- var outStream = fs.createWriteStream(file + '.js');
-
- outStream.write('module.exports = \'');
-
- inStream.pipe(through(function (buf) {
- this.queue((buf + '').replace(/'/g, '\\\'').replace(/\r\n|\r|\n/g, '\\n'));
- }, function () {
- this.queue('\';');
- })).pipe(outStream);
- });*/ 

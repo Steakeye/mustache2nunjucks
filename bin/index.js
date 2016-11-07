@@ -21,9 +21,9 @@
     })(OutputType || (OutputType = {}));
     var M2NService = (function () {
         function M2NService(sourcePath, outputPath) {
+            // console.log("M2NService");
+            // console.log(arguments);
             if (sourcePath === void 0) { sourcePath = process.cwd(); }
-            console.log("M2NService");
-            console.log(arguments);
             if (!outputPath) {
                 this.assignSourceToBothPaths(sourcePath);
             }
