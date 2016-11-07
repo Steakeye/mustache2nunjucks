@@ -23,8 +23,8 @@ class M2NService {
     private static PATH_NOT_FOUND: string  = "Source path not found";
 
     constructor(sourcePath: string = process.cwd(), outputPath?: string) {
-        console.log("M2NService");
-        console.log(arguments);
+        // console.log("M2NService");
+        // console.log(arguments);
 
         if (!outputPath) { //undefined or empty string
             this.assignSourceToBothPaths(sourcePath)
@@ -101,8 +101,6 @@ class M2NService {
     }
 
 }
-
-
 
 //Set up the CLI interface then process the arguments in order to get the data/instructions
 cliArgs.version('0.0.1')

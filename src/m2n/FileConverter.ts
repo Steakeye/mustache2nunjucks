@@ -19,7 +19,7 @@ module m2n {
     export class FileConverter {
         private static CONVERSION_MAP: ConversionMap = {
             //TODO: fix this? What do we need to know?
-            layouts: { from: /{{<layouts(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
+            layouts: { from: /{{<(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
             blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
             includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
             ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
@@ -152,7 +152,7 @@ module m2n {
                 for (conversion in conversionMap) {
                     let conversionPair: ConversionPair = conversionMap[conversion];
 
-                    console.log('conversion: ', conversion)
+                    //console.log('conversion: ', conversion)
                     convertedText = convertedText.replace(conversionPair.from, conversionPair.to)
                 }
 
@@ -173,16 +173,3 @@ module m2n {
 }
 
 export = m2n.FileConverter;
-
-/*files.forEach(function (file) {
- var inStream = fs.createReadStream(file);
- var outStream = fs.createWriteStream(file + '.js');
-
- outStream.write('module.exports = \'');
-
- inStream.pipe(through(function (buf) {
- this.queue((buf + '').replace(/'/g, '\\\'').replace(/\r\n|\r|\n/g, '\\n'));
- }, function () {
- this.queue('\';');
- })).pipe(outStream);
- });*/
