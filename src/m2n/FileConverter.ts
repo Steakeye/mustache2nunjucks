@@ -152,6 +152,7 @@ module m2n {
                     let conversionPair: ConversionPair = conversionMap[conversion];
 
                     //console.log('conversion: ', conversion)
+                    //TODO: Do this in a loop so we have a multipass over the text
                     convertedText = convertedText.replace(conversionPair.from, conversionPair.to)
                 }
 
