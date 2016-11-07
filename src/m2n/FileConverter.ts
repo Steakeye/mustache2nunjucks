@@ -18,7 +18,6 @@ module m2n {
 
     export class FileConverter {
         private static CONVERSION_MAP: ConversionMap = {
-            //TODO: fix this? What do we need to know?
             layouts: { from: /{{<(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
             blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
             includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
@@ -53,7 +52,7 @@ module m2n {
         }
 
         public convert(): void {
-            console.info('Converting: ', this.source, ' to ', this.target)
+            console.info('Converting:', this.source, 'to', this.target)
 
             if (this.isTargetSameAsSource()) {
                 this.convertToSource();
@@ -73,17 +72,17 @@ module m2n {
                 data: string[] = [],
                 transformStream: through.ThroughStream = inStream.pipe(this.createTransformStream(data));
 
-            inStream.on('open', (aFileDescriptor: number) => {
+            /*inStream.on('open', (aFileDescriptor: number) => {
                 console.log('inStream.onOpen: ', aFileDescriptor);
             });
             inStream.on('data', (aChunk: string) => {
                 console.log('inStream.onData: ', aChunk);
-            });
+            });*/
             inStream.on('end', () => {
-                console.log('inStream.onEnd');
+                //console.log('inStream.onEnd');
                 let outStream = this.createOutputStream();
                 outStream.write(data.join(''), function() {
-                    console.log('outStream.write, what happened?: ', arguments)
+                    //console.log('outStream.write, what happened?: ', arguments)
                 });
             });
         }
@@ -126,7 +125,7 @@ module m2n {
         private createOutputStream(aFileDescriptor?: number): fs.WriteStream {
             let outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor }: undefined);
 
-            outStream.on('open', (aDat: any) => {
+            /*outStream.on('open', (aDat: any) => {
                 console.log('outStream.open');
             });
 
@@ -136,7 +135,7 @@ module m2n {
 
             outStream.on('end', () => {
                 console.log('outStream.onEnd');
-            });
+            });*/
 
             return outStream;
         }
