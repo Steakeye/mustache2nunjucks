@@ -1,0 +1,116 @@
+{{<layout}}
+{{$pageTitle}}
+Enter your details - Confirm your identity
+{{/pageTitle}}
+{{$content}}
+<main id="content" role="main">
+    <div class="inner-block">
+        <!--{{>includes/phase_banner}}-->
+        {{>includes/iv_service_info}}
+    </div>
+
+<div class="grid-row">
+
+<div class="column-two-thirds">
+        <p class="confirm-identity-small">Confirm your identity</p>
+
+        <article class="content__body grid-wrapper ">
+
+        <h1 class="heading-xlarge">Enter your details</h1>
+        {{#errors}}
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading-example-1" tabindex="-1">
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading-example-1">
+                There are errors on the page.
+            </h1>
+            <ul class="error-summary-list">
+                {{#errors.fname}}
+                <li><a href="#fname-header">Enter your first name</a></li>
+                {{/errors.fname}}
+                {{#errors.lname}}
+                <li><a href="#lname-header">Enter your last name</a></li>
+                {{/errors.lname}}
+                {{#errors.nino}}
+                <li><a href="#nino-header">Enter your National insurance number</a></li>
+                {{/errors.nino}}
+                {{#errors.dob}}
+                <li><a href="#dob-header">Enter your date of birth</a></li>
+                {{/errors.dob}}
+            </ul>
+        </div>
+        {{/errors}}
+        <p>This is to help us confirm who you are, so we know what questions to ask you. </p>
+        <form class="form" method="post" action="/answer-question">
+            <fieldset>
+                <div id="fname-header" class="form-group {{#errors.fname}} error{{/errors.fname}}">
+                    <label class="form-label-bold">First name</label>
+                    {{#errors.fname}}
+                    <p class="validation-message">Enter your first name</p>
+                    {{/errors.fname}}
+                    <input type="text" class="form-control" name="fname" id="fname" value=""></input>
+                </div>
+                <div id="lname-header" class="form-group  {{#errors.lname}} error{{/errors.lname}}">
+                    <label class="form-label-bold">Last name</label>
+                    {{#errors.lname}}
+                    <p class="validation-message">Enter your last name</p>
+                    {{/errors.lname}}
+                    <input type="text" class="form-control" name="lname" id="lname" value=""></input>
+                </div>
+                <div id="nino-header" class="form-group  {{#errors.nino}} error{{/errors.nino}}">
+                    <label class="form-label-bold">National Insurance number</label>
+                    <span class="form-hint">It’s on your National Insurance card, benefit letter, payslip or P60. </span>
+                    <span class="form-hint">For example QQ123456C</span>
+                    {{#errors.nino}}
+                    <p class="validation-message">Enter your National Insurance number</p>
+                    {{/errors.nino}}
+                    <input class="form-control" id="nino" type="text">
+                </div>
+                <div id="dob-header" class="form-group  {{#errors.dob}} error{{/errors.dob}}">
+                    <legend>
+                        <span class="form-label-bold">
+                            Date of birth
+                        </span>
+                    </legend>
+                    <div class="form-date">
+                        <p class="form-hint">For example, 31 3 1980</p>
+
+                    {{#errors.dob}}
+                    <p class="validation-message">Enter your Date of birth</p>
+                    {{/errors.dob}} 
+                        <div class="form-group form-group-day">
+                            <label for="dob-day">Day</label>
+                            <input class="form-control" id="dob-day" type="number" pattern="[0-9]*" min="0" max="31">
+                        </div>
+                        <div class="form-group form-group-month">
+                            <label for="dob-month">Month</label>
+                            <input class="form-control" id="dob-month" type="number" pattern="[0-9]*" min="0" max="12">
+                        </div>
+                        <div class="form-group form-group-year">
+                            <label for="dob-year">Year</label>
+                            <input class="form-control" id="dob-year" type="number" pattern="[0-9]*" min="0" max="2014">
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="form-group">
+                <br>
+                <input class="button" type="submit" value="Continue"/>
+            </div>
+           <!-- 
+            <input type="hidden" name="fname:expected" value="Steven"/>
+            <input type="hidden" name="lname:expected" value="Wise"/>
+            <input type="hidden" name="nino:expected" value="QQ123456C"/>
+            <input type="hidden" name="day:expected" value="31"/>
+            <input type="hidden" name="month:expected" value="3"/>
+            <input type="hidden" name="month:expected" value="1980"/>
+            -->
+            <input type="hidden" name="success_redirect" value="/two_questions/v1/finding_your_records"/>
+            <input type="hidden" name="failure_redirect" value="/two_questions/v1/designatory_details"/>
+
+        </form>
+                
+
+        {{>includes/get_support}}
+    </article>
+</main>
+{{/content}}
+{{/layout}}
