@@ -18,7 +18,7 @@ module m2n {
 
     export class FileConverter {
         private static CONVERSION_MAP: ConversionMap = {
-            layouts: { from: /{{<(.*)}}((.|\n)*){{\/(.*)}}/gm, to: '{% extends "$1.html" %} $2' },
+            layouts: { from: /{{<(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% extends "$1.html" %} $2' },
             blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
             includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
             ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
