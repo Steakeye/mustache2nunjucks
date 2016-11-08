@@ -10,6 +10,7 @@ const path = require('path');
 import through = require('through');
 import cliArgs = require('commander');
 import FileConverter = require('./m2n/FileConverter');
+import FormatTranslator = require('./m2n/FormatTranslator');
 import m2n = require('./m2n/PathMapper');
 
 const PathMapper = m2n.PathMapper;
@@ -41,7 +42,7 @@ class M2NService {
             fileMappings: m2n.MappingPair[];
 
         function convert(aFrom: string, aTo: string) {
-            fileConverter = new FileConverter(aFrom, aTo);
+            fileConverter = new FileConverter(aFrom, aTo, new FormatTranslator);
             fileConverter.convert();
         }
 

@@ -1,4 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
+/// <reference path="FileTranslator.ts" />
 /**
  * Created by steakeye on 19/10/16.
  */
@@ -7,6 +8,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as mkdirp from 'mkdirp';
 import * as through from 'through';
+
+import {FileTranslator} from './FileTranslator';
 
 module m2n {
     interface ConversionPair {
@@ -17,13 +20,6 @@ module m2n {
     interface ConversionMap { [  conversion_name: string ]: ConversionPair }
 
     export class FileConverter {
-        private static CONVERSION_MAP: ConversionMap = {
-            layouts: { from: /{{<(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% extends "$1.html" %} $2' },
-            blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
-            includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
-            ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
-            ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
-        };
 
         private static NODE_ERRORS: {
             enoent: number;
@@ -42,13 +38,18 @@ module m2n {
             process.exit(1);
         }
 
-        constructor(aSource: string, aTarget: string) {
-            this.setSourceAndTarget(aSource, aTarget)
+        constructor(aSource: string, aTarget: string, aTranslation: FileTranslator) {
+            this.setSourceAndTarget(aSource, aTarget);
+            this.setTranslation(aTranslation);
         }
 
         public setSourceAndTarget(aSource: string, aTarget: string): void {
             this.source = aSource;
             this.target = aTarget;
+        }
+
+        public setTranslation(aTranslation: FileTranslator): void {
+            this.translation = aTranslation;
         }
 
         public convert(): void {
@@ -68,33 +69,42 @@ module m2n {
 
         private convertToSource() : void {
             let inStream: fs.ReadStream = fs.createReadStream(this.source),
-                outStream: fs.WriteStream,
-                data: string[] = [],
-                transformStream: through.ThroughStream = inStream.pipe(this.createTransformStream(data));
+                transformStream: through.ThroughStream = this.getTranslationStream(this.onConversionToSource.bind(this), this.onConversionComplete.bind(this));
 
-            /*inStream.on('open', (aFileDescriptor: number) => {
-                console.log('inStream.onOpen: ', aFileDescriptor);
-            });
-            inStream.on('data', (aChunk: string) => {
-                console.log('inStream.onData: ', aChunk);
-            });*/
+            this.buffer = [];
+
+            inStream.pipe(transformStream);
+
             inStream.on('end', () => {
                 //console.log('inStream.onEnd');
-                let outStream = this.createOutputStream();
-                outStream.write(data.join(''), function() {
+                let outStream: fs.WriteStream = fs.createWriteStream(this.target);
+
+                outStream.write(this.buffer.join(''), function() {
                     //console.log('outStream.write, what happened?: ', arguments)
                 });
+
+                this.buffer.length = 0;
+                this.buffer = undefined;
             });
         }
 
         private convertToTarget() : void {
             this.ensureValidTarget(() => {
                 let inStream: fs.ReadStream = fs.createReadStream(this.source),
-                    transformStream = this.createTransformStream(),
+                    transformStream = this.getTranslationStream(undefined, this.onConversionComplete.bind(this)),
                     outStream: fs.WriteStream = fs.createWriteStream(this.target);
 
                 inStream.pipe(transformStream).pipe(outStream);
             });
+        }
+
+        private onConversionToSource(aNewContent: string): void {
+            this.buffer.push(aNewContent);
+
+        }
+
+        private onConversionComplete(): void {
+            console.info('Conversion complete for: ', this.source)
         }
 
         private ensureValidTarget(aThen: () => void): void {
@@ -121,53 +131,14 @@ module m2n {
             });
         }
 
-
-        private createOutputStream(aFileDescriptor?: number): fs.WriteStream {
-            let outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor }: undefined);
-
-            /*outStream.on('open', (aDat: any) => {
-                console.log('outStream.open');
-            });
-
-            outStream.on('data', (aDat: any) => {
-                console.log('outStream.data');
-            });
-
-            outStream.on('end', () => {
-                console.log('outStream.onEnd');
-            });*/
-
-            return outStream;
-        }
-
-        private createTransformStream(aDataCache?: string []): through.ThroughStream {
-            let converter: FileConverter = this;
-
-            function writeAction(aBuffer) {
-                let conversion: any,
-                    conversionMap: ConversionMap = FileConverter.CONVERSION_MAP,
-                    convertedText: string = aBuffer.toString();
-
-                for (conversion in conversionMap) {
-                    let conversionPair: ConversionPair = conversionMap[conversion];
-
-                    //console.log('conversion: ', conversion)
-                    //TODO: Do this in a loop so we have a multipass over the text
-                    convertedText = convertedText.replace(conversionPair.from, conversionPair.to)
-                }
-
-                this.queue(convertedText);
-                aDataCache && aDataCache.push(convertedText)
-            }
-            function endAction() {
-                console.info('Conversion complete for: ', converter.source)
-            }
-
-            return through(writeAction, endAction);
+        private getTranslationStream(aOnTranslation?: (aTranslated: string) => void, aOnTranslationComplete?: () => void): through.ThroughStream {
+            return this.translation.createTranslationStream(aOnTranslation, aOnTranslationComplete);
         }
 
         private source: string;
         private target: string;
+        private translation: FileTranslator;
+        private buffer: string[];
 
     }
 }

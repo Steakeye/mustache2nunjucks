@@ -1,4 +1,5 @@
 /// <reference path="../../typings/index.d.ts" />
+/// <reference path="FileTranslator.ts" />
 /**
  * Created by steakeye on 19/10/16.
  */
@@ -7,19 +8,19 @@
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", 'fs', 'path', 'mkdirp', 'through'], factory);
+        define(["require", "exports", 'fs', 'path', 'mkdirp'], factory);
     }
 })(function (require, exports) {
     "use strict";
     var fs = require('fs');
     var path = require('path');
     var mkdirp = require('mkdirp');
-    var through = require('through');
     var m2n;
     (function (m2n) {
         var FileConverter = (function () {
-            function FileConverter(aSource, aTarget) {
+            function FileConverter(aSource, aTarget, aTranslation) {
                 this.setSourceAndTarget(aSource, aTarget);
+                this.setTranslation(aTranslation);
             }
             FileConverter.exitWithError = function (aError) {
                 console.error(aError);
@@ -28,6 +29,9 @@
             FileConverter.prototype.setSourceAndTarget = function (aSource, aTarget) {
                 this.source = aSource;
                 this.target = aTarget;
+            };
+            FileConverter.prototype.setTranslation = function (aTranslation) {
+                this.translation = aTranslation;
             };
             FileConverter.prototype.convert = function () {
                 console.info('Converting:', this.source, 'to', this.target);
@@ -43,27 +47,31 @@
             };
             FileConverter.prototype.convertToSource = function () {
                 var _this = this;
-                var inStream = fs.createReadStream(this.source), outStream, data = [], transformStream = inStream.pipe(this.createTransformStream(data));
-                /*inStream.on('open', (aFileDescriptor: number) => {
-                    console.log('inStream.onOpen: ', aFileDescriptor);
-                });
-                inStream.on('data', (aChunk: string) => {
-                    console.log('inStream.onData: ', aChunk);
-                });*/
+                var inStream = fs.createReadStream(this.source), transformStream = this.getTranslationStream(this.onConversionToSource.bind(this), this.onConversionComplete.bind(this));
+                this.buffer = [];
+                inStream.pipe(transformStream);
                 inStream.on('end', function () {
                     //console.log('inStream.onEnd');
-                    var outStream = _this.createOutputStream();
-                    outStream.write(data.join(''), function () {
+                    var outStream = fs.createWriteStream(_this.target);
+                    outStream.write(_this.buffer.join(''), function () {
                         //console.log('outStream.write, what happened?: ', arguments)
                     });
+                    _this.buffer.length = 0;
+                    _this.buffer = undefined;
                 });
             };
             FileConverter.prototype.convertToTarget = function () {
                 var _this = this;
                 this.ensureValidTarget(function () {
-                    var inStream = fs.createReadStream(_this.source), transformStream = _this.createTransformStream(), outStream = fs.createWriteStream(_this.target);
+                    var inStream = fs.createReadStream(_this.source), transformStream = _this.getTranslationStream(undefined, _this.onConversionComplete.bind(_this)), outStream = fs.createWriteStream(_this.target);
                     inStream.pipe(transformStream).pipe(outStream);
                 });
+            };
+            FileConverter.prototype.onConversionToSource = function (aNewContent) {
+                this.buffer.push(aNewContent);
+            };
+            FileConverter.prototype.onConversionComplete = function () {
+                console.info('Conversion complete for: ', this.source);
             };
             FileConverter.prototype.ensureValidTarget = function (aThen) {
                 var _this = this;
@@ -90,44 +98,8 @@
                     }
                 });
             };
-            FileConverter.prototype.createOutputStream = function (aFileDescriptor) {
-                var outStream = fs.createWriteStream(this.target, aFileDescriptor ? { fd: aFileDescriptor } : undefined);
-                /*outStream.on('open', (aDat: any) => {
-                    console.log('outStream.open');
-                });
-    
-                outStream.on('data', (aDat: any) => {
-                    console.log('outStream.data');
-                });
-    
-                outStream.on('end', () => {
-                    console.log('outStream.onEnd');
-                });*/
-                return outStream;
-            };
-            FileConverter.prototype.createTransformStream = function (aDataCache) {
-                var converter = this;
-                function writeAction(aBuffer) {
-                    var conversion, conversionMap = FileConverter.CONVERSION_MAP, convertedText = aBuffer.toString();
-                    for (conversion in conversionMap) {
-                        var conversionPair = conversionMap[conversion];
-                        //console.log('conversion: ', conversion)
-                        convertedText = convertedText.replace(conversionPair.from, conversionPair.to);
-                    }
-                    this.queue(convertedText);
-                    aDataCache && aDataCache.push(convertedText);
-                }
-                function endAction() {
-                    console.info('Conversion complete for: ', converter.source);
-                }
-                return through(writeAction, endAction);
-            };
-            FileConverter.CONVERSION_MAP = {
-                layouts: { from: /{{<(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% extends "$1.html" %} $2' },
-                blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
-                includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
-                ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
-                ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
+            FileConverter.prototype.getTranslationStream = function (aOnTranslation, aOnTranslationComplete) {
+                return this.translation.createTranslationStream(aOnTranslation, aOnTranslationComplete);
             };
             FileConverter.NODE_ERRORS = {
                 enoent: -2
