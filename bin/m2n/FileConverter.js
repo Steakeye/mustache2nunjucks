@@ -71,7 +71,7 @@
                 this.buffer.push(aNewContent);
             };
             FileConverter.prototype.onConversionComplete = function () {
-                console.info('Conversion complete for: ', this.source);
+                console.info('Conversion complete for: ', this.target);
             };
             FileConverter.prototype.ensureValidTarget = function (aThen) {
                 var _this = this;

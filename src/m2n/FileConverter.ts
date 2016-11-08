@@ -104,7 +104,7 @@ module m2n {
         }
 
         private onConversionComplete(): void {
-            console.info('Conversion complete for: ', this.source)
+            console.info('Conversion complete for: ', this.target)
         }
 
         private ensureValidTarget(aThen: () => void): void {
