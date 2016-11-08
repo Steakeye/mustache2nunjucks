@@ -18,11 +18,11 @@ module m2n {
 
     export class FormatTranslator implements FileTranslator {
         private static CONVERSION_MAP: ConversionMap = {
-            layouts: { from: /{{<(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% extends "$1.html" %} $2' },
-            blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %}$2{% endblock %}' },
-            includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
-            ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %}\r$2\r{% endif %}' },
-            ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %}\r$2\r{% endif %}' }
+            layouts: { from: /{{<(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% extends "$1.html" %} $2' },
+            blocks: { from: /{{\$(\w+)}}((.|\n)*?){{\/\1}}/gm, to: '{% block $1 %}$2{% endblock %}' },
+            includes: { from: /{{>(.*?)}}/gm, to: '{% include "$1.html" %}' },
+            ifTrue: { from: /{{#(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if $1 %}$2{% endif %}' },
+            ifFalse: { from: /{{\^(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if not $1 %}$2{% endif %}' }
         };
 
         public createTranslationStream(aOnWrite?: (aTranslated: string) => void, aOnEnd?: () => void): through.ThroughStream {
