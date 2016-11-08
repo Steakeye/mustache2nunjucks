@@ -20,12 +20,17 @@
             }
             FormatTranslator.prototype.createTranslationStream = function (aOnWrite, aOnEnd) {
                 function writeAction(aBuffer) {
-                    var conversion, conversionMap = FormatTranslator.CONVERSION_MAP, convertedText = aBuffer.toString();
+                    var conversion, conversionMap = FormatTranslator.CONVERSION_MAP, originalText = aBuffer.toString(), convertedText;
                     for (conversion in conversionMap) {
                         var conversionPair = conversionMap[conversion];
-                        //console.log('conversion: ', conversion)
-                        //TODO: Do this in a loop so we have a multipass over the text
-                        convertedText = convertedText.replace(conversionPair.from, conversionPair.to);
+                        convertedText = undefined;
+                        while (convertedText !== originalText) {
+                            convertedText = originalText.replace(conversionPair.from, conversionPair.to);
+                            if (convertedText !== originalText) {
+                                originalText = convertedText;
+                                convertedText = undefined;
+                            }
+                        }
                     }
                     this.queue(convertedText);
                     aOnWrite && aOnWrite(convertedText);
@@ -38,10 +43,10 @@
             };
             FormatTranslator.CONVERSION_MAP = {
                 layouts: { from: /{{<(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% extends "$1.html" %} $2' },
-                blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %} \r $2 \r {% endblock %}' },
+                blocks: { from: /{{\$(\w+)}}((.|\n)*){{\/\1}}/gm, to: '{% block $1 %}$2{% endblock %}' },
                 includes: { from: /{{>(.*)}}/gm, to: '{% include "$1.html" %}' },
-                ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %} \r $2 \r {% endif %}' },
-                ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %} \r $2 \r {% endif %}' }
+                ifTrue: { from: /{{#(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if $1 %}\r$2\r{% endif %}' },
+                ifFalse: { from: /{{\^(.*)}}((.|\n)*){{\/\1}}/gm, to: '{% if not $1 %}\r$2\r{% endif %}' }
             };
             return FormatTranslator;
         }());
