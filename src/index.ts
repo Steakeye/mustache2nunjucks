@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cliArgs from 'commander';
 import FileConverter from './m2n/FileConverter';
-import {FormatTranslator} from './m2n/FormatTranslator';
+import {FormatTranslator, ExternalConversionPair} from './m2n/FormatTranslator';
 import {PathMapper, MappingPair} from './m2n/PathMapper';
 
 enum OutputType {
@@ -20,6 +20,10 @@ enum OutputType {
 interface PathResolution {
     path: string;
     valid: boolean;
+}
+
+interface Config {
+    customTranslations: ExternalConversionPair[];
 }
 
 class M2NService {
@@ -70,15 +74,21 @@ class M2NService {
 
     private sourcePath:string;
     private outputPath:string;
-    private outputType:OutputType
+    private outputType:OutputType;
+    private customConfig: Config;
 
     private tryToLoadConfig(aConfigPath: string): void {
-        let resoveldPath: PathResolution = this.resolveAndValidatePath(aConfigPath);
+        let resolvedPath: PathResolution = this.resolveAndValidatePath(aConfigPath);/*,
+            configJson:Config;*/
 
-        if (resoveldPath.valid) {
-
-        } else if (resoveldPath.path !== M2NService.DEFAULT_CONFIG_PATH) {
-            this.exitWithError(M2NService.CONFIG_PATH_NOT_FOUND)
+        if (resolvedPath.valid) {
+            try {
+                this.customConfig = require(resolvedPath.path);
+            } catch (aErr) {
+                this.exitWithError(aErr);
+            }
+        } else if (resolvedPath.path !== M2NService.DEFAULT_CONFIG_PATH) {
+            this.exitWithError(M2NService.CONFIG_PATH_NOT_FOUND);
         }
     }
 

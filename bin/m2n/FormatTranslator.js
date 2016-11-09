@@ -16,7 +16,10 @@
     var m2n;
     (function (m2n) {
         var FormatTranslator = (function () {
-            function FormatTranslator() {
+            function FormatTranslator(aCustomConversions) {
+                if (aCustomConversions instanceof Array) {
+                    this.customConversionPairs = aCustomConversions;
+                }
             }
             FormatTranslator.prototype.createTranslationStream = function (aOnWrite, aOnEnd) {
                 function writeAction(aBuffer) {
@@ -52,5 +55,5 @@
         }());
         m2n.FormatTranslator = FormatTranslator;
     })(m2n || (m2n = {}));
-    exports.FormatTranslator = m2n.FormatTranslator;
+    return m2n;
 });

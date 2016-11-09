@@ -55,10 +55,17 @@
             }
         };
         M2NService.prototype.tryToLoadConfig = function (aConfigPath) {
-            var resoveldPath = this.resolveAndValidatePath(aConfigPath);
-            if (resoveldPath.valid) {
+            var resolvedPath = this.resolveAndValidatePath(aConfigPath); /*,
+                configJson:Config;*/
+            if (resolvedPath.valid) {
+                try {
+                    this.customConfig = require(resolvedPath.path);
+                }
+                catch (aErr) {
+                    this.exitWithError(aErr);
+                }
             }
-            else if (resoveldPath.path !== M2NService.DEFAULT_CONFIG_PATH) {
+            else if (resolvedPath.path !== M2NService.DEFAULT_CONFIG_PATH) {
                 this.exitWithError(M2NService.CONFIG_PATH_NOT_FOUND);
             }
         };

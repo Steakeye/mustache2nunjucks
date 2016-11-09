@@ -9,6 +9,11 @@ import * as through from 'through';
 import {FileTranslator} from './FileTranslator';
 
 module m2n {
+    export interface ExternalConversionPair {
+        regExp: string;
+        to: string;
+    }
+
     interface ConversionPair {
         from: RegExp;
         to: string;
@@ -24,6 +29,12 @@ module m2n {
             ifTrue: { from: /{{#(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if $1 %}$2{% endif %}' },
             ifFalse: { from: /{{\^(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if not $1 %}$2{% endif %}' }
         };
+
+        constructor(aCustomConversions?: ExternalConversionPair[]) {
+            if (aCustomConversions instanceof Array) {
+                this.customConversionPairs = aCustomConversions;
+            }
+        }
 
         public createTranslationStream(aOnWrite?: (aTranslated: string) => void, aOnEnd?: () => void): through.ThroughStream {
             function writeAction(aBuffer) {
@@ -58,7 +69,9 @@ module m2n {
             return through(writeAction, endAction);
         }
 
+        private customConversionPairs: ExternalConversionPair[];
+
     }
 }
 
-export let FormatTranslator = m2n.FormatTranslator;
+export = m2n;
