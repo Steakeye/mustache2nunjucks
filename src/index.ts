@@ -5,15 +5,13 @@
 /**
  * Created by steakeye on 06/10/16.
  */
-const fs = require('fs');
-const path = require('path');
-import through = require('through');
-import cliArgs = require('commander');
-import FileConverter = require('./m2n/FileConverter');
-import FormatTranslator = require('./m2n/FormatTranslator');
-import m2n = require('./m2n/PathMapper');
-
-const PathMapper = m2n.PathMapper;
+import * as fs from 'fs';
+import * as path from 'path';
+import * as through from 'through';
+import * as cliArgs from 'commander';
+import FileConverter from './m2n/FileConverter';
+import {FormatTranslator} from './m2n/FormatTranslator';
+import {PathMapper, MappingPair} from './m2n/PathMapper';
 
 enum OutputType {
     FILE,
@@ -38,8 +36,8 @@ class M2NService {
 
     public convertFiles(): void {
         let fileConverter: FileConverter,
-            pathMapper: m2n.PathMapper,
-            fileMappings: m2n.MappingPair[];
+            pathMapper: PathMapper,
+            fileMappings: MappingPair[];
 
         function convert(aFrom: string, aTo: string) {
             fileConverter = new FileConverter(aFrom, aTo, new FormatTranslator);
@@ -56,7 +54,7 @@ class M2NService {
             //Create mappings to desitnations
             fileMappings = pathMapper.generatePaths();
             //Iterate over list of files, converting one by one
-            fileMappings.forEach((aMapping: m2n.MappingPair) => {
+            fileMappings.forEach((aMapping: MappingPair) => {
                 convert(aMapping.from, aMapping.to);
             });
         }

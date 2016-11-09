@@ -52,5 +52,5 @@
         }());
         m2n.FormatTranslator = FormatTranslator;
     })(m2n || (m2n = {}));
-    return m2n.FormatTranslator;
+    exports.FormatTranslator = m2n.FormatTranslator;
 });
