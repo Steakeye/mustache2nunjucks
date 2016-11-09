@@ -61,4 +61,4 @@ module m2n {
     }
 }
 
-export = m2n.FormatTranslator;
+export let FormatTranslator = m2n.FormatTranslator;

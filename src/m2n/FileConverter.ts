@@ -143,4 +143,5 @@ module m2n {
     }
 }
 
-export = m2n.FileConverter;
+
+export default m2n.FileConverter;

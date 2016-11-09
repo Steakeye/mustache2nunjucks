@@ -5,12 +5,13 @@
 /**
  * Created by steakeye on 06/10/16.
  */
-const fs = require('fs');
-const path = require('path');
-import through = require('through');
-import cliArgs = require('commander');
-import FileConverter = require('./m2n/FileConverter');
-import FormatTranslator = require('./m2n/FormatTranslator');
+import * as fs from 'fs';
+import * as path from 'path';
+import * as through from 'through';
+import * as cliArgs from 'commander';
+import FileConverter from './m2n/FileConverter';
+import {FormatTranslator} from './m2n/FormatTranslator';
+
 import m2n = require('./m2n/PathMapper');
 
 const PathMapper = m2n.PathMapper;

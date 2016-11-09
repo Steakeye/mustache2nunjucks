@@ -111,5 +111,6 @@
         }());
         m2n.FileConverter = FileConverter;
     })(m2n || (m2n = {}));
-    return m2n.FileConverter;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.default = m2n.FileConverter;
 });

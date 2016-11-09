@@ -4,15 +4,15 @@
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", 'commander', './m2n/FileConverter', './m2n/FormatTranslator', './m2n/PathMapper'], factory);
+        define(["require", "exports", 'fs', 'path', 'commander', './m2n/FileConverter', './m2n/FormatTranslator', './m2n/PathMapper'], factory);
     }
 })(function (require, exports) {
     "use strict";
     var fs = require('fs');
     var path = require('path');
     var cliArgs = require('commander');
-    var FileConverter = require('./m2n/FileConverter');
-    var FormatTranslator = require('./m2n/FormatTranslator');
+    var FileConverter_1 = require('./m2n/FileConverter');
+    var FormatTranslator_1 = require('./m2n/FormatTranslator');
     var m2n = require('./m2n/PathMapper');
     var PathMapper = m2n.PathMapper;
     var OutputType;
@@ -36,7 +36,7 @@
         M2NService.prototype.convertFiles = function () {
             var fileConverter, pathMapper, fileMappings;
             function convert(aFrom, aTo) {
-                fileConverter = new FileConverter(aFrom, aTo, new FormatTranslator);
+                fileConverter = new FileConverter_1.default(aFrom, aTo, new FormatTranslator_1.FormatTranslator);
                 fileConverter.convert();
             }
             if (this.outputType === OutputType.FILE) {
