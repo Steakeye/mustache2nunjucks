@@ -20,10 +20,9 @@
         OutputType[OutputType["FOLDER"] = 1] = "FOLDER";
     })(OutputType || (OutputType = {}));
     var M2NService = (function () {
-        function M2NService(sourcePath, outputPath) {
+        function M2NService(sourcePath, outputPath, configPath) {
             // console.log("M2NService");
             // console.log(arguments);
-            if (sourcePath === void 0) { sourcePath = process.cwd(); }
             if (!outputPath) {
                 this.assignSourceToBothPaths(sourcePath);
             }
@@ -31,6 +30,7 @@
                 this.assignPathValues(sourcePath, outputPath);
             }
             this.setOutputType();
+            this.tryToLoadConfig(configPath);
         }
         M2NService.prototype.convertFiles = function () {
             var fileConverter, pathMapper, fileMappings;
@@ -54,10 +54,23 @@
                 });
             }
         };
+        M2NService.prototype.tryToLoadConfig = function (aConfigPath) {
+            var resoveldPath = this.resolveAndValidatePath(aConfigPath);
+            if (resoveldPath.valid) {
+            }
+            else if (resoveldPath.path !== M2NService.DEFAULT_CONFIG_PATH) {
+                this.exitWithError(M2NService.CONFIG_PATH_NOT_FOUND);
+            }
+        };
+        M2NService.prototype.resolveAndValidatePath = function (aPathToResolve) {
+            var resolvedSource = path.resolve(aPathToResolve);
+            return {
+                path: resolvedSource,
+                valid: fs.existsSync(resolvedSource)
+            };
+        };
         M2NService.prototype.resolveAndAssignSource = function (aPath) {
-            var resolvedSource = path.resolve(aPath);
-            this.validatePath(resolvedSource);
-            return (this.sourcePath = resolvedSource);
+            return (this.sourcePath = this.resolveAndValidateSourcePath(aPath));
         };
         M2NService.prototype.assignSourceToBothPaths = function (aPath) {
             this.outputPath = this.resolveAndAssignSource(aPath);
@@ -66,11 +79,12 @@
             this.resolveAndAssignSource(aSourcePath);
             this.outputPath = path.resolve(aTargetPath);
         };
-        M2NService.prototype.validatePath = function (aPath) {
-            var pathExists = fs.existsSync(aPath);
-            if (!pathExists) {
-                this.exitWithError(M2NService.PATH_NOT_FOUND);
+        M2NService.prototype.resolveAndValidateSourcePath = function (aPath) {
+            var resolvedPath = this.resolveAndValidatePath(aPath);
+            if (!resolvedPath.valid) {
+                this.exitWithError(M2NService.SOURCE_PATH_NOT_FOUND);
             }
+            return resolvedPath.path;
         };
         M2NService.prototype.setOutputType = function () {
             this.outputType = fs.statSync(this.sourcePath).isFile() ? OutputType.FILE : OutputType.FOLDER;
@@ -79,17 +93,17 @@
             console.error(aError);
             process.exit(1);
         };
-        M2NService.PATH_NOT_FOUND = "Source path not found";
+        M2NService.DEFAULT_CONFIG_PATH = process.cwd() + '/m2nconfig.json';
+        M2NService.SOURCE_PATH_NOT_FOUND = "Source path not found";
+        M2NService.CONFIG_PATH_NOT_FOUND = "Config path not found";
         return M2NService;
     }());
     //Set up the CLI interface then process the arguments in order to get the data/instructions
     cliArgs.version('0.0.1')
-        .option('-s, --source [path]', 'Directory or file to convert', process.cwd())
-        .option('-o, --output [path]', 'Location to save converted file(s)')
+        .option('-S, --source [path]', 'Directory or file to convert', process.cwd())
+        .option('-O, --output [path]', 'Location to save converted file(s)')
+        .option('-C, --config [path]', 'Location of json config file to load. Defaults to m2nconfig.json in root', M2NService.DEFAULT_CONFIG_PATH)
         .parse(process.argv);
-    function ConvertFiles() {
-        var m2nService = new M2NService(cliArgs.source, cliArgs.output);
-        m2nService.convertFiles();
-    }
-    ConvertFiles();
+    var m2nService = new M2NService(cliArgs.source, cliArgs.output, cliArgs.config);
+    m2nService.convertFiles();
 });

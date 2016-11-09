@@ -7,7 +7,6 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import * as through from 'through';
 import * as cliArgs from 'commander';
 import FileConverter from './m2n/FileConverter';
 import {FormatTranslator} from './m2n/FormatTranslator';
@@ -18,10 +17,18 @@ enum OutputType {
     FOLDER
 }
 
-class M2NService {
-    private static PATH_NOT_FOUND: string  = "Source path not found";
+interface PathResolution {
+    path: string;
+    valid: boolean;
+}
 
-    constructor(sourcePath: string = process.cwd(), outputPath?: string) {
+class M2NService {
+    public static DEFAULT_CONFIG_PATH: string  = process.cwd() + '/m2nconfig.json';
+
+    private static SOURCE_PATH_NOT_FOUND: string  = "Source path not found";
+    private static CONFIG_PATH_NOT_FOUND: string  = "Config path not found";
+
+    constructor(sourcePath: string, outputPath?: string, configPath?: string) {
         // console.log("M2NService");
         // console.log(arguments);
 
@@ -32,6 +39,7 @@ class M2NService {
         }
         this.setOutputType();
 
+        this.tryToLoadConfig(configPath);
     }
 
     public convertFiles(): void {
@@ -64,13 +72,27 @@ class M2NService {
     private outputPath:string;
     private outputType:OutputType
 
+    private tryToLoadConfig(aConfigPath: string): void {
+        let resoveldPath: PathResolution = this.resolveAndValidatePath(aConfigPath);
+
+        if (resoveldPath.valid) {
+
+        } else if (resoveldPath.path !== M2NService.DEFAULT_CONFIG_PATH) {
+            this.exitWithError(M2NService.CONFIG_PATH_NOT_FOUND)
+        }
+    }
+
+    private resolveAndValidatePath(aPathToResolve: string): PathResolution {
+        let resolvedSource: string = path.resolve(aPathToResolve);
+
+        return {
+            path: resolvedSource,
+            valid: fs.existsSync(resolvedSource)
+        };
+    }
 
     private resolveAndAssignSource(aPath: string): string {
-        let resolvedSource: string = path.resolve(aPath);
-
-        this.validatePath(resolvedSource);
-
-        return (this.sourcePath = resolvedSource);
+        return (this.sourcePath = this.resolveAndValidateSourcePath(aPath));
     }
 
     private assignSourceToBothPaths(aPath: string) : void {
@@ -82,12 +104,14 @@ class M2NService {
         this.outputPath = path.resolve(aTargetPath);
     }
 
-    private validatePath(aPath: string) : void {
-        let pathExists: boolean = fs.existsSync(aPath);
+    private resolveAndValidateSourcePath(aPath: string) : string {
+        let resolvedPath: PathResolution = this.resolveAndValidatePath(aPath)
 
-        if(!pathExists) {
-            this.exitWithError(M2NService.PATH_NOT_FOUND);
+        if (!resolvedPath.valid) {
+            this.exitWithError(M2NService.SOURCE_PATH_NOT_FOUND);
         }
+
+        return resolvedPath.path;
     }
 
     private setOutputType() : void {
@@ -103,14 +127,11 @@ class M2NService {
 
 //Set up the CLI interface then process the arguments in order to get the data/instructions
 cliArgs.version('0.0.1')
-    .option('-s, --source [path]', 'Directory or file to convert', process.cwd())
-    .option('-o, --output [path]', 'Location to save converted file(s)')
+    .option('-S, --source [path]', 'Directory or file to convert', process.cwd())
+    .option('-O, --output [path]', 'Location to save converted file(s)')
+    .option('-C, --config [path]', 'Location of json config file to load. Defaults to m2nconfig.json in root', M2NService.DEFAULT_CONFIG_PATH)
     .parse(process.argv);
 
-function ConvertFiles() {
-    let m2nService = new M2NService((<any>cliArgs).source, (<any>cliArgs).output);
+let m2nService:M2NService = new M2NService((<any>cliArgs).source, (<any>cliArgs).output, (<any>cliArgs).config);
 
-    m2nService.convertFiles();
-}
-
-ConvertFiles();
+m2nService.convertFiles();

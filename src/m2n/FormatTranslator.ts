@@ -40,7 +40,7 @@ module m2n {
                     while (convertedText !== originalText) {
                         convertedText = originalText.replace(conversionPair.from, conversionPair.to);
 
-                        if(convertedText !== originalText) {
+                        if (convertedText !== originalText) {
                             originalText = convertedText;
                             convertedText = undefined;
                         }
