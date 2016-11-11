@@ -4,3 +4,4 @@ typings
 --*.js
 test/templates.out
 test/templates.new
+npm-debug.log

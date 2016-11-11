@@ -33,9 +33,9 @@
             this.tryToLoadConfig(configPath);
         }
         M2NService.prototype.convertFiles = function () {
-            var fileConverter, pathMapper, fileMappings;
+            var fileConverter, pathMapper, fileMappings, customTranslations = this.customConfig ? this.customConfig.customTranslations : undefined;
             function convert(aFrom, aTo) {
-                fileConverter = new FileConverter_1.default(aFrom, aTo, new FormatTranslator_1.FormatTranslator);
+                fileConverter = new FileConverter_1.default(aFrom, aTo, new FormatTranslator_1.FormatTranslator(customTranslations));
                 fileConverter.convert();
             }
             if (this.outputType === OutputType.FILE) {

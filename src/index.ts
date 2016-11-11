@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cliArgs from 'commander';
 import FileConverter from './m2n/FileConverter';
-import {FormatTranslator, ExternalConversionPair} from './m2n/FormatTranslator';
+import {FormatTranslator, ExternalConversion} from './m2n/FormatTranslator';
 import {PathMapper, MappingPair} from './m2n/PathMapper';
 
 enum OutputType {
@@ -23,7 +23,7 @@ interface PathResolution {
 }
 
 interface Config {
-    customTranslations: ExternalConversionPair[];
+    customTranslations: ExternalConversion[];
 }
 
 class M2NService {
@@ -49,10 +49,11 @@ class M2NService {
     public convertFiles(): void {
         let fileConverter: FileConverter,
             pathMapper: PathMapper,
-            fileMappings: MappingPair[];
+            fileMappings: MappingPair[],
+            customTranslations = this.customConfig ? this.customConfig.customTranslations: undefined;
 
         function convert(aFrom: string, aTo: string) {
-            fileConverter = new FileConverter(aFrom, aTo, new FormatTranslator);
+            fileConverter = new FileConverter(aFrom, aTo, new FormatTranslator(customTranslations));
             fileConverter.convert();
         }
 

@@ -1,0 +1,10 @@
+{
+  "customTranslations": [
+    {
+      "func": [
+        "aString",
+        "console.log('Custom!!'); return aString;"
+      ]
+    }
+  ]
+}

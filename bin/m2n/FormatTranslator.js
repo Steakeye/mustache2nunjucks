@@ -8,41 +8,83 @@
         var v = factory(require, exports); if (v !== undefined) module.exports = v;
     }
     else if (typeof define === 'function' && define.amd) {
-        define(["require", "exports", 'through'], factory);
+        define(["require", "exports", 'path', 'through'], factory);
     }
 })(function (require, exports) {
     "use strict";
+    var path = require('path');
     var through = require('through');
     var m2n;
     (function (m2n) {
         var FormatTranslator = (function () {
             function FormatTranslator(aCustomConversions) {
                 if (aCustomConversions instanceof Array) {
-                    this.customConversionPairs = aCustomConversions;
+                    this.customConversions = aCustomConversions;
+                    this.attemptModuleInclusion();
                 }
             }
+            FormatTranslator.exitWithError = function (aError) {
+                console.error(aError);
+                process.exit(1);
+            };
             FormatTranslator.prototype.createTranslationStream = function (aOnWrite, aOnEnd) {
-                function writeAction(aBuffer) {
-                    var conversion, conversionMap = FormatTranslator.CONVERSION_MAP, originalText = aBuffer.toString(), convertedText;
-                    for (conversion in conversionMap) {
-                        var conversionPair = conversionMap[conversion];
-                        convertedText = undefined;
-                        while (convertedText !== originalText) {
-                            convertedText = originalText.replace(conversionPair.from, conversionPair.to);
-                            if (convertedText !== originalText) {
-                                originalText = convertedText;
-                                convertedText = undefined;
-                            }
+                var self = this;
+                function handleRegexReplacement(aOriginal, aMatcher, aReplacement) {
+                    var updated;
+                    while (updated !== aOriginal) {
+                        updated = aOriginal.replace(aMatcher, aReplacement);
+                        if (updated !== aOriginal) {
+                            aOriginal = updated;
+                            updated = undefined;
                         }
                     }
-                    this.queue(convertedText);
-                    aOnWrite && aOnWrite(convertedText);
+                    return updated;
+                }
+                function writeAction(aBuffer) {
+                    var conversion, conversionMap = FormatTranslator.CONVERSION_MAP, originalText = aBuffer.toString(), customTranslations = self.customConversions;
+                    for (conversion in conversionMap) {
+                        var conversionPair = conversionMap[conversion];
+                        originalText = handleRegexReplacement(originalText, conversionPair.from, conversionPair.to);
+                    }
+                    if (customTranslations) {
+                        customTranslations.forEach(function (aValue) {
+                            var func = aValue.moduleFunc;
+                            if (func) {
+                                originalText = func(originalText);
+                            }
+                            else if (aValue.func) {
+                                func = Function.apply(undefined, aValue.func);
+                                originalText = func(originalText);
+                            }
+                            else {
+                                originalText = handleRegexReplacement(originalText, new RegExp(aValue.regExp, FormatTranslator.DEFAULT_FLAGS), aValue.to);
+                            }
+                        });
+                    }
+                    this.queue(originalText);
+                    aOnWrite && aOnWrite(originalText);
                 }
                 function endAction() {
                     //console.info('Conversion complete for: ', aSource)
                     aOnEnd && aOnEnd();
                 }
                 return through(writeAction, endAction);
+            };
+            FormatTranslator.prototype.attemptModuleInclusion = function () {
+                var customConversions = this.customConversions;
+                if (customConversions) {
+                    customConversions.forEach(function (aConversion) {
+                        var modulePath = aConversion.module;
+                        if (modulePath) {
+                            try {
+                                aConversion.moduleFunc = require(path.resolve(modulePath));
+                            }
+                            catch (aErr) {
+                                FormatTranslator.exitWithError(aErr);
+                            }
+                        }
+                    });
+                }
             };
             FormatTranslator.CONVERSION_MAP = {
                 layouts: { from: /{{<(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% extends "$1.html" %} $2' },
@@ -51,6 +93,7 @@
                 ifTrue: { from: /{{#(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if $1 %}$2{% endif %}' },
                 ifFalse: { from: /{{\^(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if not $1 %}$2{% endif %}' }
             };
+            FormatTranslator.DEFAULT_FLAGS = "gm";
             return FormatTranslator;
         }());
         m2n.FormatTranslator = FormatTranslator;

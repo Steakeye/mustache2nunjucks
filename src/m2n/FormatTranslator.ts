@@ -4,14 +4,18 @@
  * Created by steakeye on 19/10/16.
  */
 
+import * as path from 'path';
 import * as through from 'through';
 
 import {FileTranslator} from './FileTranslator';
 
 module m2n {
-    export interface ExternalConversionPair {
-        regExp: string;
-        to: string;
+    export interface ExternalConversion {
+        module?: string;
+        moduleFunc?: (aString: string) => string;
+        func?: string[];
+        regExp?: string;
+        to?: string;
     }
 
     interface ConversionPair {
@@ -30,36 +34,68 @@ module m2n {
             ifFalse: { from: /{{\^(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if not $1 %}$2{% endif %}' }
         };
 
-        constructor(aCustomConversions?: ExternalConversionPair[]) {
+        private static DEFAULT_FLAGS: string = "gm";
+
+
+        private static exitWithError(aError: string | Error): void {
+            console.error(aError)
+            process.exit(1);
+        }
+
+        constructor(aCustomConversions?: ExternalConversion[]) {
             if (aCustomConversions instanceof Array) {
-                this.customConversionPairs = aCustomConversions;
+                this.customConversions = aCustomConversions;
+                this.attemptModuleInclusion();
             }
         }
 
         public createTranslationStream(aOnWrite?: (aTranslated: string) => void, aOnEnd?: () => void): through.ThroughStream {
-            function writeAction(aBuffer) {
+            let self: FormatTranslator = this;
+
+            function handleRegexReplacement(aOriginal: string, aMatcher: RegExp, aReplacement: string): string {
+                let updated: string;
+
+                while (updated !== aOriginal) {
+                    updated = aOriginal.replace(aMatcher, aReplacement);
+
+                    if (updated !== aOriginal) {
+                        aOriginal = updated;
+                        updated = undefined;
+                    }
+                }
+
+                return updated;
+            }
+
+            function writeAction(aBuffer): void {
                 let conversion: any,
                     conversionMap: ConversionMap = FormatTranslator.CONVERSION_MAP,
                     originalText: string = aBuffer.toString(),
-                    convertedText: string;
+                    customTranslations: ExternalConversion[] = self.customConversions;
 
                 for (conversion in conversionMap) {
                     let conversionPair: ConversionPair = conversionMap[conversion];
 
-                    convertedText = undefined;
-
-                    while (convertedText !== originalText) {
-                        convertedText = originalText.replace(conversionPair.from, conversionPair.to);
-
-                        if (convertedText !== originalText) {
-                            originalText = convertedText;
-                            convertedText = undefined;
-                        }
-                    }
+                    originalText = handleRegexReplacement(originalText, conversionPair.from, conversionPair.to);
                 }
 
-                this.queue(convertedText);
-                aOnWrite && aOnWrite(convertedText)
+                if (customTranslations) {
+                    customTranslations.forEach((aValue: ExternalConversion) => {
+                        let func:(aString: string) => string = aValue.moduleFunc;
+
+                        if (func) {
+                            originalText = func(originalText);
+                        } else if (aValue.func) {
+                            func = Function.apply(undefined, aValue.func);
+                            originalText = func(originalText);
+                        } else {
+                            originalText = handleRegexReplacement(originalText, new RegExp(aValue.regExp, FormatTranslator.DEFAULT_FLAGS), aValue.to);
+                        }
+                    });
+                }
+
+                this.queue(originalText);
+                aOnWrite && aOnWrite(originalText)
             }
             function endAction() {
                 //console.info('Conversion complete for: ', aSource)
@@ -69,8 +105,25 @@ module m2n {
             return through(writeAction, endAction);
         }
 
-        private customConversionPairs: ExternalConversionPair[];
+        private customConversions: ExternalConversion[];
 
+        private attemptModuleInclusion(): void {
+            let customConversions: ExternalConversion[] = this.customConversions;
+
+            if (customConversions) {
+                customConversions.forEach((aConversion: ExternalConversion) => {
+                    let modulePath = aConversion.module;
+
+                    if (modulePath) {
+                        try {
+                            aConversion.moduleFunc = require(path.resolve(modulePath));
+                        } catch (aErr) {
+                            FormatTranslator.exitWithError(aErr);
+                        }
+                    }
+                });
+            }
+        }
     }
 }
 

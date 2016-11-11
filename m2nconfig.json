@@ -1,0 +1,7 @@
+{
+  "customTranslations": [
+    {
+      "module": "custom.js"
+    }
+  ]
+}
