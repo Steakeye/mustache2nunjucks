@@ -34,7 +34,7 @@ module m2n {
         };
 
         private static exitWithError(aError: string | Error): void {
-            console.error(aError)
+            console.error(aError);
             process.exit(1);
         }
 
@@ -52,8 +52,10 @@ module m2n {
             this.translation = aTranslation;
         }
 
-        public convert(): void {
-            console.info('Converting:', this.source, 'to', this.target)
+        public convert(aOnConvertComplete:(aErr: any, aFileConverter: FileConverter) => void): void {
+            console.info('Converting:', this.source, 'to', this.target);
+
+            this.onComplete = aOnConvertComplete;
 
             if (this.isTargetSameAsSource()) {
                 this.convertToSource();
@@ -104,7 +106,8 @@ module m2n {
         }
 
         private onConversionComplete(): void {
-            console.info('Conversion complete for: ', this.target)
+            console.info('Conversion complete for: ', this.target);
+            this.onComplete && this.onComplete(undefined, this);
         }
 
         private ensureValidTarget(aThen: () => void): void {
@@ -137,6 +140,7 @@ module m2n {
 
         private source: string;
         private target: string;
+        private onComplete: (aErr: any, aFileConverter: FileConverter) => void;
         private translation: FileTranslator;
         private buffer: string[];
 

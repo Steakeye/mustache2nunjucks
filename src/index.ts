@@ -31,6 +31,7 @@ class M2NService {
 
     private static SOURCE_PATH_NOT_FOUND: string  = "Source path not found";
     private static CONFIG_PATH_NOT_FOUND: string  = "Config path not found";
+    private static CONVERSION_COMPLETE: string  = "\nConversions completed!";
 
     constructor(sourcePath: string, outputPath?: string, configPath?: string) {
         // console.log("M2NService");
@@ -50,11 +51,32 @@ class M2NService {
         let fileConverter: FileConverter,
             pathMapper: PathMapper,
             fileMappings: MappingPair[],
-            customTranslations = this.customConfig ? this.customConfig.customTranslations: undefined;
+            customTranslations = this.customConfig ? this.customConfig.customTranslations: undefined,
+            conversionJobs: FileConverter[] = [];
+
+        const onConversion = (aError: any, aFileConversion: FileConverter) => {
+            let jobListIdx:number;
+
+            if (aError) {
+                this.exitWithError(aError)
+            } else {
+                jobListIdx = conversionJobs.lastIndexOf(aFileConversion);
+
+                if (jobListIdx !== -1) { //Remove job from list
+
+                    conversionJobs.splice(jobListIdx, 1);
+
+                    if (!conversionJobs.length) { //If all jobs completed
+                        console.log(M2NService.CONVERSION_COMPLETE);
+                        process.exit(0);
+                    }
+                }
+            }
+        };
 
         function convert(aFrom: string, aTo: string) {
-            fileConverter = new FileConverter(aFrom, aTo, new FormatTranslator(customTranslations));
-            fileConverter.convert();
+            conversionJobs.push(fileConverter = new FileConverter(aFrom, aTo, new FormatTranslator(customTranslations)));
+            fileConverter.convert(onConversion);
         }
 
         if (this.outputType === OutputType.FILE) {
@@ -130,7 +152,7 @@ class M2NService {
     }
 
     private exitWithError(aError: string): void {
-        console.error(aError)
+        console.error(aError);
         process.exit(1);
     }
 

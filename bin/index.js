@@ -33,10 +33,27 @@
             this.tryToLoadConfig(configPath);
         }
         M2NService.prototype.convertFiles = function () {
-            var fileConverter, pathMapper, fileMappings, customTranslations = this.customConfig ? this.customConfig.customTranslations : undefined;
+            var _this = this;
+            var fileConverter, pathMapper, fileMappings, customTranslations = this.customConfig ? this.customConfig.customTranslations : undefined, conversionJobs = [];
+            var onConversion = function (aError, aFileConversion) {
+                var jobListIdx;
+                if (aError) {
+                    _this.exitWithError(aError);
+                }
+                else {
+                    jobListIdx = conversionJobs.lastIndexOf(aFileConversion);
+                    if (jobListIdx !== -1) {
+                        conversionJobs.splice(jobListIdx, 1);
+                        if (!conversionJobs.length) {
+                            console.log(M2NService.CONVERSION_COMPLETE);
+                            process.exit(0);
+                        }
+                    }
+                }
+            };
             function convert(aFrom, aTo) {
-                fileConverter = new FileConverter_1.default(aFrom, aTo, new FormatTranslator_1.FormatTranslator(customTranslations));
-                fileConverter.convert();
+                conversionJobs.push(fileConverter = new FileConverter_1.default(aFrom, aTo, new FormatTranslator_1.FormatTranslator(customTranslations)));
+                fileConverter.convert(onConversion);
             }
             if (this.outputType === OutputType.FILE) {
                 //Just use the file converter on one source
@@ -103,6 +120,7 @@
         M2NService.DEFAULT_CONFIG_PATH = process.cwd() + '/m2nconfig.json';
         M2NService.SOURCE_PATH_NOT_FOUND = "Source path not found";
         M2NService.CONFIG_PATH_NOT_FOUND = "Config path not found";
+        M2NService.CONVERSION_COMPLETE = "\nConversions completed!";
         return M2NService;
     }());
     //Set up the CLI interface then process the arguments in order to get the data/instructions

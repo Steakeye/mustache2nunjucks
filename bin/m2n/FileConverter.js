@@ -33,8 +33,9 @@
             FileConverter.prototype.setTranslation = function (aTranslation) {
                 this.translation = aTranslation;
             };
-            FileConverter.prototype.convert = function () {
+            FileConverter.prototype.convert = function (aOnConvertComplete) {
                 console.info('Converting:', this.source, 'to', this.target);
+                this.onComplete = aOnConvertComplete;
                 if (this.isTargetSameAsSource()) {
                     this.convertToSource();
                 }
@@ -72,6 +73,7 @@
             };
             FileConverter.prototype.onConversionComplete = function () {
                 console.info('Conversion complete for: ', this.target);
+                this.onComplete && this.onComplete(undefined, this);
             };
             FileConverter.prototype.ensureValidTarget = function (aThen) {
                 var _this = this;
