@@ -50,12 +50,24 @@ function findCorrectClosingTagPosition(aString, aStartingPoint, aTagName) {
 function replaceContentDivWithArticle(aString) {
     var tOpenTagStartFragment = '<div class="column-two-thirds"',
         tOpenTagStart = aString.indexOf(tOpenTagStartFragment),
-        tOpenTagEnd = aString.indexOf('>', tOpenTagStart),
-        tClosingTagStart = findCorrectClosingTagPosition(aString, tOpenTagEnd + 1, 'div'),
-        tClosingTagEnd = aString.indexOf('>', tClosingTagStart),
-        tContentPreDiv = aString.substring(0, tOpenTagStart - 1),
-        tInnerContent = aString.substring(tOpenTagEnd + 1, tClosingTagStart),
+        tOpenTagEnd,
+        tClosingTagStart,
+        tClosingTagEnd,
+        tContentPreDiv,
+        tInnerContent,
+        tContentPostDiv,
+        tStringToReturn;
+
+    if (tOpenTagStart !== -1) {
+        tOpenTagEnd = aString.indexOf('>', tOpenTagStart);
+        tClosingTagStart = findCorrectClosingTagPosition(aString, tOpenTagEnd + 1, 'div');
+        tClosingTagEnd = aString.indexOf('>', tClosingTagStart);
+        tContentPreDiv = aString.substring(0, tOpenTagStart - 1);
+        tInnerContent = aString.substring(tOpenTagEnd + 1, tClosingTagStart);
         tContentPostDiv = aString.substring(tClosingTagEnd + 1);
+
+        tStringToReturn = tContentPreDiv + '<article class="content__body">' + tInnerContent + '</article>' + tContentPostDiv;
+    }
 
     //console.log('tOpenTagStart',tOpenTagStart);
     //console.log('tOpenTagEnd',tOpenTagEnd);
@@ -63,7 +75,7 @@ function replaceContentDivWithArticle(aString) {
     //console.log('tNextOpeningTag',tClosingTagEnd);
     //console.log('innerHtml',tTemplate.substring(tOpenTagEnd + 1, tClosingTagStart));
 
-    return tContentPreDiv + '<article class="content__body">' + tInnerContent + '</article>' + tContentPostDiv;
+    return tStringToReturn || aString;
 }
 
 module.exports = replaceContentDivWithArticle;
