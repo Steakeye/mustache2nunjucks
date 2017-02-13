@@ -49,15 +49,20 @@
                     if (customTranslations) {
                         customTranslations.forEach(function (aValue) {
                             var func = aValue.moduleFunc;
-                            if (func) {
-                                originalText = func(originalText);
+                            try {
+                                if (func) {
+                                    originalText = func(originalText);
+                                }
+                                else if (aValue.func) {
+                                    func = Function.apply(undefined, aValue.func);
+                                    originalText = func(originalText);
+                                }
+                                else {
+                                    originalText = handleRegexReplacement(originalText, new RegExp(aValue.regExp, FormatTranslator.DEFAULT_FLAGS), aValue.to);
+                                }
                             }
-                            else if (aValue.func) {
-                                func = Function.apply(undefined, aValue.func);
-                                originalText = func(originalText);
-                            }
-                            else {
-                                originalText = handleRegexReplacement(originalText, new RegExp(aValue.regExp, FormatTranslator.DEFAULT_FLAGS), aValue.to);
+                            catch (aError) {
+                                FormatTranslator.exitWithError((FormatTranslator.MESSAGE_ERROR_CUSTOM_FAIL + " ") + aError);
                             }
                         });
                     }
@@ -94,6 +99,7 @@
                 ifFalse: { from: /{{\^(.*)}}((.|\n)*?){{\/\1}}/gm, to: '{% if not $1 %}$2{% endif %}' }
             };
             FormatTranslator.DEFAULT_FLAGS = "gm";
+            FormatTranslator.MESSAGE_ERROR_CUSTOM_FAIL = "Custom translations failed:";
             return FormatTranslator;
         }());
         m2n.FormatTranslator = FormatTranslator;

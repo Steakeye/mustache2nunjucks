@@ -35,10 +35,11 @@ module m2n {
         };
 
         private static DEFAULT_FLAGS: string = "gm";
+        private static MESSAGE_ERROR_CUSTOM_FAIL: string = "Custom translations failed:";
 
 
         private static exitWithError(aError: string | Error): void {
-            console.error(aError)
+            console.error(aError);
             process.exit(1);
         }
 
@@ -83,13 +84,17 @@ module m2n {
                     customTranslations.forEach((aValue: ExternalConversion) => {
                         let func:(aString: string) => string = aValue.moduleFunc;
 
-                        if (func) {
-                            originalText = func(originalText);
-                        } else if (aValue.func) {
-                            func = Function.apply(undefined, aValue.func);
-                            originalText = func(originalText);
-                        } else {
-                            originalText = handleRegexReplacement(originalText, new RegExp(aValue.regExp, FormatTranslator.DEFAULT_FLAGS), aValue.to);
+                        try {
+                            if (func) {
+                                originalText = func(originalText);
+                            } else if (aValue.func) {
+                                func = Function.apply(undefined, aValue.func);
+                                originalText = func(originalText);
+                            } else {
+                                originalText = handleRegexReplacement(originalText, new RegExp(aValue.regExp, FormatTranslator.DEFAULT_FLAGS), aValue.to);
+                            }
+                        } catch (aError) {
+                            FormatTranslator.exitWithError(`${FormatTranslator.MESSAGE_ERROR_CUSTOM_FAIL} ` + aError)
                         }
                     });
                 }

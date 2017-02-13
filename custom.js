@@ -41,6 +41,10 @@ function findCorrectClosingTagPosition(aString, aStartingPoint, aTagName) {
     while (getOpenTagDiffCount()  > 0) {
         //console.log("while getOpenTagMinusCloseTagCount > 0", tNextClosingTagIndex);
         tNextClosingTagIndex = findNthClosingTagFromPosition(tOpenTagDiffCount, aString, aTagName, tNextClosingTagIndex);
+
+        if(tNextClosingTagIndex == -1) {
+            throw new Error('Malformed html, cannot refactor:\n' + aString);
+        }
     }
 
     return tNextClosingTagIndex;
